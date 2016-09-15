@@ -1,5 +1,4 @@
-﻿//using System.Web.Script.Serialization;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -281,14 +280,6 @@ namespace WelmLibrary.Classic
                         data = txtBuilder.ToString();
                         break;
                     case "json":
-                        /**
-                        JavaScriptSerializer serializer = new JavaScriptSerializer();
-                        StringBuilder builder = new StringBuilder();
-
-                        serializer.Serialize(sources, builder);
-
-                        data = builder.ToString();
-                        **/
                         JsonSerializerSettings settings = new JsonSerializerSettings
                         {
                             MaxDepth = int.MaxValue,

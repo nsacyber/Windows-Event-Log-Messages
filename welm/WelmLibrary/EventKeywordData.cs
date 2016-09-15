@@ -96,7 +96,7 @@ namespace WelmLibrary
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "Name: {0}, Value: {1:x}", Name, Value);
+            return string.Format(CultureInfo.CurrentCulture, "Name: {0}, Value: {1:X}", Name, Value);
         }
 
         public override int GetHashCode()

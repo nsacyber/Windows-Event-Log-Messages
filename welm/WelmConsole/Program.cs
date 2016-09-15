@@ -33,14 +33,14 @@ namespace WelmConsole
         {
             AppDomain.CurrentDomain.UnhandledException += HandleCurrentDomainUnhandledException;
 
-            Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
             
             ParsedArguments arguments = null;
 
             try
             {
-                IDictionary<string, ValueObject> rawArguments = new Docopt().Apply(Usage, args, version: fileVersion.FileVersion, exit: false);
+                IDictionary<string, ValueObject> rawArguments = new Docopt().Apply(Usage, args, version: fileVersion.FileVersion);
                 arguments = new ParsedArguments(rawArguments);
             }
             catch (DocoptExitException)
@@ -58,7 +58,6 @@ namespace WelmConsole
             Logger.Info(CultureInfo.CurrentCulture, "Command line arguments: {0}", string.Join(" ", args));
 
             OutputFormat format = arguments.Format;
-            //OperationMode mode = OperationMode.None;
 
             OperatingSystem os = Environment.OSVersion;
 
@@ -70,8 +69,6 @@ namespace WelmConsole
 
                 if (arguments.Logs)
                 {
-                    //mode = OperationMode.Logs;
-
                     logs = EventLogData.GetEventLogs();
 
                     if (format != OutputFormat.All)
@@ -87,8 +84,6 @@ namespace WelmConsole
                 }
                 else if (arguments.Providers)
                 {
-                    //mode = OperationMode.Providers;
-
                     providers = EventProviderData.GetProviders();
 
                     if (format != OutputFormat.All)
@@ -105,8 +100,6 @@ namespace WelmConsole
                 }
                 else if (arguments.Events)
                 {
-                    //mode = OperationMode.Events;
-
                     events = EventData.GetEvents();
 
                     if (format != OutputFormat.All)
@@ -130,8 +123,6 @@ namespace WelmConsole
 
                 if (arguments.Logs)
                 {
-                    //mode = OperationMode.Logs;
-
                     classicEventLogs = ClassicEventLogData.GetEventLogs();
 
                     if (format != OutputFormat.All)
@@ -147,13 +138,10 @@ namespace WelmConsole
                 }
                 else if (arguments.Providers)
                 {
-                    //mode = OperationMode.Providers;
-
                     classicEventLogs = ClassicEventLogData.GetEventLogs();
 
                     foreach (var eventLog in classicEventLogs)
                     {
-                        //foreach (var eventSource in eventLog.Sources)
                         foreach (var eventSource in EventSourceData.GetEventSources(eventLog.Name))
                             eventSources.Add(eventSource);
 
@@ -173,13 +161,10 @@ namespace WelmConsole
                 }
                 else if (arguments.Events)
                 {
-                    //mode = OperationMode.Events;
-
                     classicEventLogs = ClassicEventLogData.GetEventLogs();
 
                     foreach (var eventLog in classicEventLogs)
                     {
-                        //foreach (var eventSource in eventLog.Sources)
                         foreach (var eventSource in EventSourceData.GetEventSources(eventLog.Name))
                             eventSources.Add(eventSource);
 
@@ -212,14 +197,10 @@ namespace WelmConsole
 
             Exception exception = e.ExceptionObject as Exception;
 
-            if (exception != null)
-            {
-                message = string.Format(CultureInfo.CurrentCulture, "The application encountered an unhandled exception: {0}{1}{2}", exception.Message, Environment.NewLine, exception.StackTrace);
-            }
-            else
-            {
+            if (exception == null)
                 message = "The application encountered an unknown unhandled exception.";
-            }
+            else
+                message = string.Format(CultureInfo.CurrentCulture, "The application encountered an unhandled exception: {0}{1}{2}", exception.Message, Environment.NewLine, exception.StackTrace);
 
             Logger.Fatal(exception, message);
 
@@ -228,7 +209,7 @@ namespace WelmConsole
     }
 
     /// <summary>
-    /// The different process return codes.
+    /// Process return codes.
     /// </summary>
     internal enum ProcessCode
     {
@@ -251,31 +232,5 @@ namespace WelmConsole
         /// An unhandled exception occured.
         /// </summary>
         UnhandledException = -3
-    }
-
-    /// <summary>
-    /// The modes of operation the tool runs in.
-    /// </summary>
-    public enum OperationMode
-    {
-        /// <summary>
-        /// No or unknown tool mode.
-        /// </summary>
-        None,
-
-        /// <summary>
-        /// Tool is running in log retrieval mode.
-        /// </summary>
-        Logs,
-
-        /// <summary>
-        /// Tool is running in provider retrieval mode.
-        /// </summary>
-        Providers,
-
-        /// <summary>
-        /// Tool is running in event retrieval mode.
-        /// </summary>
-        Events
     }
 }
