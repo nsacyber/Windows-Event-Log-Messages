@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WelmConsole", "WelmConsole\WelmConsole.csproj", "{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02E91588-2312-455C-B3C6-380FE8ED8476}"
+	ProjectSection(SolutionItems) = preProject
+		Install-Features.ps1 = Install-Features.ps1
+		Statistics.ps1 = Statistics.ps1
+		welm.bat = welm.bat
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WelmLibrary", "WelmLibrary\WelmLibrary.csproj", "{A360BCA0-EF35-407A-A03C-023EF23858B3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Debug|x86.ActiveCfg = Debug|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Debug|x86.Build.0 = Debug|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Release|Any CPU.ActiveCfg = Release|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Release|Mixed Platforms.Build.0 = Release|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Release|x86.ActiveCfg = Release|x86
+		{3BA8393A-0E68-45A9-BDA4-5F3F93989F25}.Release|x86.Build.0 = Release|x86
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A360BCA0-EF35-407A-A03C-023EF23858B3}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
