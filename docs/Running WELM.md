@@ -5,12 +5,14 @@ Install all features and roles in the operating system before running WELM to ge
 WELM requires administrative rights to retrieve all event information. Specifically it needs administrative rights to get event information about the Security log, its related providers, and its events.
 
 ## How to Retrieve Data 
-Generally, here is what is required to
+Generally, here is what is required to retrieve data with WELM.
 1. Create a virtual machine.
 1. Install WELM prerequisites (.Net 4.0) in the virtual machine.
-1. Enable all features in Windows either manually or with the provider PowerShell script. Run dcpromo on server editions of the operating system in order to get all possible events.
-1. Copy welm.exe, NLog.config, and welm.bat to the virtual machine
-1. Run welm.bat
+1. Enable all features in Windows either manually (XP, 2003, Vista, Server 2008) or with the provided Install-Features.ps1 PowerShell script (Windows 7/Server 2008 R2 and later). Run dcpromo on the server editions of the operating system in order to allow retrieving of all possible events.
+1. Copy welm.exe, NLog.config, and welm.bat to the virtual machine.
+1. Run welm.bat.
+1. Copy the generated data out of the virtual machine.
+1. Run **New-Statistics -Path 'C:\path to folder containing generated data'** from the Get-Statistics.ps1 file to generate statistics files based on the data.
 
 
 ### Windows XP

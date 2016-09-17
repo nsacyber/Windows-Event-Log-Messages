@@ -130,6 +130,7 @@ namespace WelmLibrary
     /// </summary>
     public enum NtFacility
     {
+        // TODO: facilities change per OS release so it would be more accurate to define and assign them per OS release
         // facilities: https://msdn.microsoft.com/en-us/library/cc231214.aspx
         Null = 0, //not actually defined anywhere but this will suppress invalid facility log messages
         Debugger = 1, //MS-ERREF
@@ -166,7 +167,7 @@ namespace WelmLibrary
         Virtualization = 55, //0x37 nstatus.h
         VolumeManager = 56, //0x38 nstatus.h
         Bcd = 57, //0x39 ntstatus.h
-        Dis = 60, //0x3C
+        Dis = 60, //0x3C ntstatus.h for Windows 7 SP1 and earlier only
         Win32NtUser = 62, //0x3E ntstatus.h
         Win32NtGdi = 63, //0x3F ntstatus.h
         ResumeKeyFilter = 64, //0x40 ntstatus.h

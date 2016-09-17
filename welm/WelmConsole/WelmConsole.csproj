@@ -135,6 +135,14 @@ if exist "%25ILMERGE_PATH%25" (
       copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\NLog.config" /y
    )
 
+   if exist "$(TargetDir)NLog.config" (
+      copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\NLog.config" /y
+   )
+
+   if exist "$(SolutionDir)\Install-Features.ps1" (
+      copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\Install-Features.ps1" /y
+   )
+
    if exist "$(SolutionDir)\welm.bat" (
       copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\welm.bat" /y
    )

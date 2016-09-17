@@ -176,8 +176,6 @@ namespace WelmLibrary
                             txtBuilder.AppendFormat("{0}{1}", logData, Environment.NewLine);
                         }
 
-                        //output.AppendFormat("{0}{1}", Environment.NewLine, new EventLogStatistics(logs));
-
                         data = txtBuilder.ToString();
                         break;
                     case "json":

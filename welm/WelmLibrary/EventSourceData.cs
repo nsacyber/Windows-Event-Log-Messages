@@ -275,8 +275,6 @@ namespace WelmLibrary.Classic
                             txtBuilder.AppendFormat("{0}{1}", source, Environment.NewLine);
                         }
 
-                        //output.AppendFormat("{0}{1}", Environment.NewLine, new EventProviderStatistics(sources));
-
                         data = txtBuilder.ToString();
                         break;
                     case "json":

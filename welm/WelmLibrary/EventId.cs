@@ -66,7 +66,6 @@ namespace WelmLibrary
         /// <param name="value">The value for the event ID.</param>
         public EventId(long value)
         {
-            // not sure what to do when the value is less than 0 and haven't encoutered this yet for Microsoft event IDs
             if (value >= 0)
             {
                 NtStatus = new NtStatus(value);
@@ -81,19 +80,26 @@ namespace WelmLibrary
 
                 if (string.IsNullOrEmpty(Facility) )
                 {
+                    // TODO: this needs to be OS version aware since the maximum changes per major OS release
                     if (NtStatus.Facility <= ((uint)NtFacility.Maximum))
                     {
-                        // TODO: write a PowerShell script to parse nstatus.h from the latest wdk/sdk so we can document any undocumented facilities
                         Logger.Info(CultureInfo.CurrentCulture, "Undocumented facility: {0} (0x{1:X}) ", NtStatus.Facility, NtStatus.Facility);
                     }
                     else
                     {
+                        //TODO: consider throwing an exception so it can be handle in parent context so this event is NOT added to list of valid events, not sure if this is reliable
                         // if the value is greater than the max then this probably isn't a valid event ID
-                        Logger.Warn(CultureInfo.CurrentCulture, "Invalid facility: {0} (0x{1:X}) ", NtStatus.Facility, NtStatus.Facility);                    }
+                        Logger.Warn(CultureInfo.CurrentCulture, "Invalid facility: {0} (0x{1:X}) ", NtStatus.Facility, NtStatus.Facility);
+                    }
                 }
 
                 Code = NtStatus.Code;
                 Value = value;
+            }
+            else
+            {
+                // not sure what to do when the value is less than 0 and haven't encoutered this yet for Microsoft event IDs
+                Logger.Warn(CultureInfo.CurrentCulture, "Invalid event ID value {0} (0x{1:X})", value, value);
             }
         }
 

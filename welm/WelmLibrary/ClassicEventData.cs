@@ -75,8 +75,6 @@ namespace WelmLibrary.Classic
                             txtBuilder.AppendFormat("{0}{1}", eventData, Environment.NewLine);
                         }
 
-                        //output.AppendFormat("{0}{1}", Environment.NewLine, new EventStatistics(events));
-
                         data = txtBuilder.ToString();
                         break;
                     case "json":

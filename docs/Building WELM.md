@@ -12,4 +12,4 @@ Building WELM is fairly straightforward.
     1. [NLog.Schema](https://www.nuget.org/packages/NLog.Schema/): **Get-Project WelmConsole,WelmLibrary | Install-Package NLog.Schema**
 1. Build a Debug or Release configuration.
 
-When building a Release configuration and the ILmerge nuget package is installed, then a **dist** folder will be created inside the **welm** folder. The dist folder will have welm.exe, welm.bat, and NLog.config in it. Copy these 3 files to a system that you want to run WELM on.
+When building a Release configuration and the ILmerge nuget package is installed, then a **dist** folder will be created inside the **welm** folder. The dist folder will have welm.exe, welm.bat, NLog.config, and Install-Features.ps1 in it. Copy these files to a system that you want to [run WELM on](.\Running WELM.md).
