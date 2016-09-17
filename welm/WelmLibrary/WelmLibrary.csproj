@@ -61,12 +61,10 @@
     <Compile Include="EventKeywordData.cs" />
     <Compile Include="EventLevelData.cs" />
     <Compile Include="EventLogData.cs" />
-    <Compile Include="EventLogStatistics.cs" />
     <Compile Include="EventMessageFile.cs" />
     <Compile Include="EventMessageFileCache.cs" />
     <Compile Include="EventOpcodeData.cs" />
     <Compile Include="EventProviderData.cs" />
-    <Compile Include="EventProviderStatistics.cs" />
     <Compile Include="EventSourceData.cs" />
     <Compile Include="EventTaskData.cs" />
     <Compile Include="EventTypesBitMask.cs" />
