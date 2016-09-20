@@ -3,6 +3,8 @@
 **/packages/**
 **/bin/**
 **/obj/**
+**/logs/**
+**/publishers/**
 *.suo
 *.user
 

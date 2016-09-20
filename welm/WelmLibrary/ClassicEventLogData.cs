@@ -61,7 +61,7 @@ namespace WelmLibrary.Classic
                 }
             }
 
-            return eventLogs as IList<ClassicEventLogData>;
+            return eventLogs;
         }
 
         public static string ToFormat(IList<ClassicEventLogData> logs, string format)
@@ -95,7 +95,6 @@ namespace WelmLibrary.Classic
                         };
 
                         data = JsonConvert.SerializeObject(logs, settings);
-
                         break;
                     case "csv":
                         CsvConfiguration config = new CsvConfiguration
@@ -125,7 +124,6 @@ namespace WelmLibrary.Classic
 
                         csvBuilder.Insert(0, "\"Name\",\"Sources\"" + Environment.NewLine);
                         data = csvBuilder.ToString();
-
                         break;
                     default:
                         break;

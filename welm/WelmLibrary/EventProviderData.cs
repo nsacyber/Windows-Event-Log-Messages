@@ -132,7 +132,7 @@ namespace WelmLibrary
                         {
                             providerData.Events = new List<EventData>();
 
-                            Logger.Warn(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception while accessing the event provider Events field: {1}{2}{3}", providerName, ele.Message, Environment.NewLine, ele.StackTrace);
+                            Logger.Error(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception while accessing the event provider Events field: {1}{2}{3}", providerName, ele.Message, Environment.NewLine, ele.StackTrace);
                         } //something is weird with Windows-MsiServer 
 
                         try
@@ -143,7 +143,7 @@ namespace WelmLibrary
                         {
                             providerData.Keywords = new List<EventKeywordData>();
 
-                            Logger.Warn(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception while accessing the event provider Keywords field: {1}{2}{3}", providerName, ele.Message, Environment.NewLine, ele.StackTrace);
+                            Logger.Error(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception while accessing the event provider Keywords field: {1}{2}{3}", providerName, ele.Message, Environment.NewLine, ele.StackTrace);
                         } //something is weird with Windows-MsiServer 
 
                         // Ntfs has 2 entries instead of 1 so make sure we don't add it twice
@@ -158,7 +158,7 @@ namespace WelmLibrary
                         // Microsoft-Windows-WPD-MTPClassDriver = The system cannot find the file specified
                         // Microsoft-Windows-Sdbus-SQM = The system cannot find the files specified
 
-                        Logger.Warn(elnfe, CultureInfo.CurrentCulture, "Event provider '{0}' not found during initial access of the provider while processing providers: {1}{2}{3}", providerName, elnfe.Message, Environment.NewLine, elnfe.StackTrace);
+                        Logger.Error(elnfe, CultureInfo.CurrentCulture, "Event provider '{0}' not found during initial access of the provider while processing providers: {1}{2}{3}", providerName, elnfe.Message, Environment.NewLine, elnfe.StackTrace);
                     }
                     catch (UnauthorizedAccessException uae)
                     {
@@ -166,12 +166,12 @@ namespace WelmLibrary
                         // Microsoft-Windows-Security-Auditing 
                         // Microsoft-Windows-Eventlog
 
-                        Logger.Warn(uae, CultureInfo.CurrentCulture, "Access denied to event provider '{0}' during initial access of the provider while processing providers: {1}{2}{3}", providerName, uae.Message, Environment.NewLine, uae.StackTrace);
+                        Logger.Error(uae, CultureInfo.CurrentCulture, "Access denied to event provider '{0}' during initial access of the provider while processing providers: {1}{2}{3}", providerName, uae.Message, Environment.NewLine, uae.StackTrace);
                     }
                     catch (EventLogException ele)
                     {
                         // unfortunately vista x64 needs this generic catch statement
-                        Logger.Warn(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception during initial access of the provider while processing providers: {1}{2}{3}", providerName, ele.Message, Environment.NewLine, ele.StackTrace);
+                        Logger.Error(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception during initial access of the provider while processing providers: {1}{2}{3}", providerName, ele.Message, Environment.NewLine, ele.StackTrace);
                     }
                     finally
                     {
@@ -215,7 +215,6 @@ namespace WelmLibrary
                         };
 
                         data = JsonConvert.SerializeObject(providers, settings);
-
                         break;
                     case "csv":
                         CsvConfiguration config = new CsvConfiguration
@@ -259,7 +258,6 @@ namespace WelmLibrary
                         // basically any WriteField that doesn't match the corresponding property's type is not written in the header
                         csvBuilder.Insert(0, "\"Name\",\"DisplayName\",\"Events\",\"Guid\",\"FileName\",\"MessageFile\",\"SubstitutionFile\",\"ResourceFile\",\"Levels\",\"Keywords\",\"SendsTo\"" + Environment.NewLine);
                         data = csvBuilder.ToString();
-
                         break;
                     default:
                         break;
@@ -399,7 +397,7 @@ namespace WelmLibrary
             }
             catch (EventLogException ele)
             {
-                Logger.Warn(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception while accessing the event provider Levels field: {1}{2}{3}", providerMetadata.Name, ele.Message, Environment.NewLine, ele.StackTrace);
+                Logger.Error(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception while accessing the event provider Levels field: {1}{2}{3}", providerMetadata.Name, ele.Message, Environment.NewLine, ele.StackTrace);
             } //something is weird with Windows-MsiServer 
 
             return levels;

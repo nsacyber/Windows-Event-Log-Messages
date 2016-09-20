@@ -86,7 +86,6 @@ namespace WelmLibrary.Classic
 
                         data = JsonConvert.SerializeObject(events, settings);
                         break;
-
                     case "csv":
                         CsvConfiguration config = new CsvConfiguration
                         {

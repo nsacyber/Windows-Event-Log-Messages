@@ -18,16 +18,6 @@ namespace WelmLibrary.Classic
         private const int MessageTableResource = 11;
 
         /// <summary>
-        /// The minimum structure length for the MESSAGE_RESOURCE_ENTRY structure when it contains an ANSI message string.
-        /// </summary>
-        private const int MinLenAnsi = 0xC;
-
-        /// <summary>
-        /// The minimum structure length for the MESSAGE_RESOURCE_ENTRY structure when it contains a Unicode message string.
-        /// </summary>
-        private const int MinLenUnicode = 0x10;
-
-        /// <summary>
         /// The value of the Flags field in the MESSAGE_RESOURCE_ENTRY structure when the structure contains an ANSI message string.
         /// </summary>
         private const int AnsiFlag = 0;
@@ -128,7 +118,7 @@ namespace WelmLibrary.Classic
                 // assume that other unrooted files paths may have the same issue
                 if (!System.IO.Path.IsPathRooted(Path))
                 {
-                    Path = System.IO.Path.Combine(Environment.GetEnvironmentVariable("windir"), System.IO.Path.Combine("system32", Path)).ToLower(CultureInfo.CurrentCulture);
+                    Path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), Path).ToLower(CultureInfo.CurrentCulture);
 
                     hModule = NativeMethods.LoadLibraryEx(Path, IntPtr.Zero, (uint)NativeMethods.LoadLibraryFlags.LoadLibraryAsDataFile);
                     errorCode = Marshal.GetLastWin32Error();
@@ -163,10 +153,10 @@ namespace WelmLibrary.Classic
 
             if (hModule == IntPtr.Zero)
             {
-                // XP x64 and Server 2003 R2 x64 needs to have path redirection temporarily disabled to find many of the files in system32 and system32\drivers folders
-                if (!string.IsNullOrEmpty(programFilesx86) && Path.StartsWith(System.IO.Path.Combine(Environment.GetEnvironmentVariable("windir"), "system32"), StringComparison.CurrentCultureIgnoreCase))
+                // XP x64 and Server 2003 R2 x64 need to have path redirection temporarily disabled to find many of the files in system32 and system32\drivers folders
+                if (!string.IsNullOrEmpty(programFilesx86) && Path.StartsWith(Environment.GetFolderPath(Environment.SpecialFolder.System), StringComparison.CurrentCultureIgnoreCase))
                 {
-                    if (Path.StartsWith(System.IO.Path.Combine(Environment.GetEnvironmentVariable("windir"), "system32"), StringComparison.CurrentCultureIgnoreCase))
+                    if (Path.StartsWith(Environment.GetFolderPath(Environment.SpecialFolder.System), StringComparison.CurrentCultureIgnoreCase))
                     {
                         IntPtr ptr = new IntPtr();
                         bool disableResult = NativeMethods.Wow64DisableWow64FsRedirection(ref ptr);
@@ -178,12 +168,12 @@ namespace WelmLibrary.Classic
 
                         if (!disableResult || !revertResult)
                         {
-                            Logger.Warn(CultureInfo.CurrentCulture, "File system redirection suppression operation failed. Wow64DisableWow64FsRedirection returned {0}. Wow64RevertWow64FsRedirection returned {1}", disableResult, revertResult);
+                            Logger.Error(CultureInfo.CurrentCulture, "File system redirection suppression operation failed. Wow64DisableWow64FsRedirection returned {0}. Wow64RevertWow64FsRedirection returned {1}", disableResult, revertResult);
                         }
 
                         if (hModule != IntPtr.Zero)
                         {
-                            Logger.Info(CultureInfo.CurrentCulture, "Wow64 file system redirection disabling fix worked. Before: '{0}' After: '{1}'", originalPath, Path);
+                            Logger.Info(CultureInfo.CurrentCulture, "Wow64 file system redirection disabling fix worked for '{0}'", Path);
                         }
                     }
                 }
@@ -317,24 +307,16 @@ namespace WelmLibrary.Classic
              **/
             for (int blockNum = 0; blockNum < numberOfBlocks; blockNum++)
             {
-                NativeMethods.MESSAGE_RESOURCE_BLOCK block = (NativeMethods.MESSAGE_RESOURCE_BLOCK)Marshal.PtrToStructure(blocks,
-                    typeof(NativeMethods.MESSAGE_RESOURCE_BLOCK));
+                NativeMethods.MESSAGE_RESOURCE_BLOCK block = (NativeMethods.MESSAGE_RESOURCE_BLOCK)Marshal.PtrToStructure(blocks, typeof(NativeMethods.MESSAGE_RESOURCE_BLOCK));
 
                 // MESSAGE_RESOURCE_BLOCK.OffsetToEntries is the offset from the MESSAGE_RESOURCE_DATA to the MESSAGE_RESROURCE_ENTRY array
                 IntPtr entries = new IntPtr(messageResourceData.ToInt32() + block.OffsetToEntries);
 
-                // can probably skip this block since there are no message IDs or is there only 1?
-                if (block.LowId == 0 && block.HighId == 0)
-                {
-                    Logger.Info(CultureInfo.CurrentCulture, "MESSAGE_RESOURCE_BLOCK LowId and HighId were both 0 for {0}", Path);
-                    //continue;
-                }
-
                 // can probably skip this block, smallest observed legit value has been 16 so far
                 if (block.OffsetToEntries == 0)
                 {
-                    Logger.Info(CultureInfo.CurrentCulture, "MESSAGE_RESOURCE_BLOCK OffsetToEntries was 0 for {0}", Path);
-                    //continue;
+                    Logger.Warn(CultureInfo.CurrentCulture, "MESSAGE_RESOURCE_BLOCK OffsetToEntries was 0 for {0}", Path);
+                    continue;
                 }
 
                 // Iterate over the MESSAGE_RESOURCE_ENTRY array
@@ -364,42 +346,38 @@ namespace WelmLibrary.Classic
                     else
                     {
                         Logger.Warn(CultureInfo.CurrentCulture, "MESSAGE_RESOURCE_ENTRY.Flags field should be 0 or 1 but was {0} in {1} so the event message will be empty", flags, Path);
+                        continue;
                     }
 
                     EventId eventId = new EventId(id);
 
                     ClassicEventData eventData = new ClassicEventData(LogName, SourceName, eventId, message);
-
-                    // TODO: check min lengths to see if they are correct. MinLenAnsi = 12, MinLenUnicode = 16? shouldn't it be 5 bytes? what's coded right now is probably incorrect
-                    // TODO: < instead of <= ?
-
-                    // advance to the next RESOURCE_ENTRY in the array
-                    // ignore anything that doesn't meet the minimum structure length for a message resource
-                    if ((length <= MinLenAnsi && flags == AnsiFlag) || (length <= MinLenUnicode && flags == UnicodeFlag))
+                   
+                    // could move this to the top of the for loop but have never seen this get logged
+                    if (length % 4 != 0)
                     {
-                        // log this?
-                        continue;
-                    }
-
-                    // TODO: double check the assumption below
-
-                    // not a Microsoft event from observation, probably just some random string resource
-                    if (!eventId.IsCustomer && eventId.IsReserved)
-                    {
-                        // log this?
+                        Logger.Warn(CultureInfo.CurrentCulture, "Message length of {0} is not 4 byte aligned", length);
                         continue;
                     }
 
                     //Customer. This specifies if the value is customer or Microsoft defined. This bit is set for customer values and clear for Microsoft values.
                     //Reserved. Must be 0 so that it is possible to map an NTSTATUS value to an equivalent HRESULT value.
 
-                    //per MS-ERREF, ok
-                    //if(!eventId.IsCustomer && !eventId.IsReserved)
-                        //ok and is valid
+                    // not a Microsoft event from observation, these looks like random string resources
+                    // so far it seems safe to discard these as not being events
+                    // only Windows 10 1607 it made a difference of removing ~2000 "events" from classicevents results
+                    if (!eventId.IsCustomer && eventId.IsReserved)
+                    {
+                        continue;
+                    }
 
-                    //per MS-ERREF, not ok, skip
-                    //if (eventId.IsCustomer || eventId.IsReserved)
-                    //    continue;
+                    // per MS-ERREF, not ok/skip but when this is *not* commented out, the classicevents results end up missing some legit events
+                    /**
+                    if (eventId.IsCustomer || eventId.IsReserved)
+                    {
+                        continue;
+                    }
+                    **/
 
                     Events.Add(eventData);
 

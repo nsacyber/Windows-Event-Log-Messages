@@ -11,7 +11,7 @@ namespace WelmLibrary.Classic
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private IDictionary<string, EventMessageFile> _messageFiles;
+        private readonly IDictionary<string, EventMessageFile> _messageFiles;
 
         static EventMessageFileCache() { Instance = new EventMessageFileCache(); }
 
@@ -38,12 +38,12 @@ namespace WelmLibrary.Classic
                     }
                     else
                     {
-                        Logger.Info(CultureInfo.CurrentCulture, "Did not add message file '{0}' for '{1}' due to it being a duplicate", path, messageFile.FileName);
+                        Logger.Debug(CultureInfo.CurrentCulture, "Did not add message file '{0}' for '{1}' due to it being a duplicate", path, messageFile.FileName);
                     }
                 }
                 else
                 {
-                    Logger.Info(CultureInfo.CurrentCulture, "Did not add message file for '{0}' due to an empty path", messageFile.FileName);
+                    Logger.Debug(CultureInfo.CurrentCulture, "Did not add message file for '{0}' due to an empty path", messageFile.FileName);
                 }
             }
         }

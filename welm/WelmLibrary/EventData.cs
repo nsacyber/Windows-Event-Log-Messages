@@ -55,6 +55,11 @@ namespace WelmLibrary
         public EventLevelData Level { get; set; }
 
         /// <summary>
+        /// The version number of the event.
+        /// </summary>
+        public byte Version { get; set; }
+
+        /// <summary>
         /// The event task generally gives more specific information about which component is logging information.
         /// </summary>
         public EventTaskData Task { get; set; }
@@ -89,6 +94,7 @@ namespace WelmLibrary
             Provider = string.Empty;
             Id = new EventId();
             Level = new EventLevelData();
+            Version = 0;
             Task = new EventTaskData();
             Opcode = new EventOpcodeData();
             Keywords = new List<EventKeywordData>();
@@ -109,6 +115,7 @@ namespace WelmLibrary
                 Provider = string.IsNullOrEmpty(providerName) ? string.Empty : providerName;
                 Id = new EventId(metadata.Id);
                 Level = new EventLevelData(metadata.Level.DisplayName, metadata.Level.Value);
+                Version = metadata.Version;
                 Task = new EventTaskData(metadata.Task.Name, metadata.Task.DisplayName, metadata.Task.Value, metadata.Task.EventGuid);
                 Opcode = new EventOpcodeData(metadata.Opcode.DisplayName, metadata.Opcode.Value);
                 Keywords = EventKeywordData.GetKeywords(metadata.Keywords);
@@ -120,23 +127,22 @@ namespace WelmLibrary
                 Parameters = string.IsNullOrEmpty(metadata.Template) ? new OrderedDictionary() : GetEventParametersFromXmlTemplate(metadata.Template);
 
                 // use the officially defined level information when it exists, otherwise we try to guess the level from Id.Severity which may or may not be accurate
-                // add a question mark to the end of the level name to denote this case
-                // TODO: consider removing the question mark because it seems like this is a correct assumption
+                // previously, there was a question mark added to the end of the level name to denote this case but it was removed since it seems like a valid guess
                 if (string.IsNullOrEmpty(Level.Name))
                 {
-                    Level = new EventLevelData(string.Format(CultureInfo.CurrentCulture, "{0}?", Id.Severity), (int)Enum.Parse(typeof(NtSeverity), Id.Severity));
+                    Level = new EventLevelData(string.Format(CultureInfo.CurrentCulture, "{0}", Id.Severity), (int)Enum.Parse(typeof(NtSeverity), Id.Severity));
                 }
 
                 // odd case but fairly common
                 if (string.IsNullOrEmpty(metadata.Description) && !string.IsNullOrEmpty(metadata.Template))
                 {
-                    Logger.Info(CultureInfo.CurrentCulture, "Event did not have a message but had message parameters defined. {0}", this);
+                    Logger.Debug(CultureInfo.CurrentCulture, "Event did not have a message but had message parameters defined. {0}", this);
                 }
 
                 // another odd case but seems to be normal for "Classic" events so log only the non-classic instances
                 if (!string.IsNullOrEmpty(metadata.Description) && metadata.Description.Contains("%1") && string.IsNullOrEmpty(metadata.Template) && (Keywords.Count(keyword => keyword.Name.Equals("Classic")) == 0))
                 {
-                    Logger.Info(CultureInfo.CurrentCulture, "Event had a message with a parameter but no message parameters were defined. {0}", this);
+                    Logger.Debug(CultureInfo.CurrentCulture, "Event had a message with a parameter but no message parameters were defined. {0}", this);
                 }
             }
             else
@@ -144,6 +150,7 @@ namespace WelmLibrary
                 Provider = string.Empty;
                 Id = new EventId();
                 Level = new EventLevelData();
+                Version = 0;
                 Task = new EventTaskData();
                 Opcode = new EventOpcodeData();
                 Keywords = new List<EventKeywordData>();
@@ -184,7 +191,7 @@ namespace WelmLibrary
                         // Microsoft-Windows-WPD-MTPClassDriver = The system cannot find the file specified
                         // Microsoft-Windows-Sdbus-SQM = The system cannot find the files specified
 
-                        Logger.Warn(elnfe, CultureInfo.CurrentCulture, "Event provider '{0}' not found while processing events: {1}{2}{3}", providerName, elnfe.Message, Environment.NewLine, elnfe.StackTrace);
+                        Logger.Error(elnfe, CultureInfo.CurrentCulture, "Event provider '{0}' not found while processing events: {1}{2}{3}", providerName, elnfe.Message, Environment.NewLine, elnfe.StackTrace);
 
                     }
                     catch (EventLogException ele)
@@ -192,7 +199,7 @@ namespace WelmLibrary
                         // Microsoft-Windows-MsiServer = The specified resource type cannot be found in the image file
                         // Microsoft-Windows-CAPI2 = The data is invalid
 
-                        Logger.Warn(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception while processing events: {1}{2}{3}", providerName, ele.Message, Environment.NewLine, ele.StackTrace);
+                        Logger.Error(ele, CultureInfo.CurrentCulture, "Event provider '{0}' threw a generic event log exception while processing events: {1}{2}{3}", providerName, ele.Message, Environment.NewLine, ele.StackTrace);
                     }
                     catch (UnauthorizedAccessException uae)
                     {
@@ -200,7 +207,7 @@ namespace WelmLibrary
                         // Microsoft-Windows-Security-Auditing 
                         // Microsoft-Windows-Eventlog
 
-                        Logger.Warn(uae, CultureInfo.CurrentCulture, "Access denied to event provider '{0}' while processing events: {1}{2}{3}", providerName, uae.Message, Environment.NewLine, uae.StackTrace);
+                        Logger.Error(uae, CultureInfo.CurrentCulture, "Access denied to event provider '{0}' while processing events: {1}{2}{3}", providerName, uae.Message, Environment.NewLine, uae.StackTrace);
                     }
                     finally
                     {
@@ -239,12 +246,11 @@ namespace WelmLibrary
                         JsonSerializerSettings settings = new JsonSerializerSettings
                         {
                             MaxDepth = int.MaxValue,
-                            Formatting = Formatting.None
+                            Formatting = Formatting.None,
                         };
 
                         data = JsonConvert.SerializeObject(events, settings);
                         break;
-
                     case "csv":
                         CsvConfiguration config = new CsvConfiguration
                         {
@@ -268,6 +274,7 @@ namespace WelmLibrary
                                 csvWriter.WriteField<ushort>(evt.Id.Code);
                                 csvWriter.WriteField<string>(string.Format(CultureInfo.CurrentCulture, "0x{0:X}", evt.Id.Value));
                                 csvWriter.WriteField<string>(evt.Level.Name);
+                                csvWriter.WriteField<byte>(evt.Version);
                                 csvWriter.WriteField<string>(evt.Task.Name);
                                 csvWriter.WriteField<string>(evt.Opcode.Name);
                                 csvWriter.WriteField<string>(CreateKeywordOutput(evt.Keywords));
@@ -280,9 +287,8 @@ namespace WelmLibrary
                             sw.Flush();
                         }
 
-                        csvBuilder.Insert(0, "\"Provider\",\"ID\",\"Value\",\"Level\",\"Task\",\"Opcode\",\"Keywords\",\"LoggedTo\",\"Message\",\"Parameters\"" + Environment.NewLine);
+                        csvBuilder.Insert(0, "\"Provider\",\"ID\",\"Value\",\"Level\",\"Version\",\"Task\",\"Opcode\",\"Keywords\",\"LoggedTo\",\"Message\",\"Parameters\"" + Environment.NewLine);
                         data = csvBuilder.ToString();
-
                         break;
                     default:
                         break;
@@ -300,6 +306,7 @@ namespace WelmLibrary
             output.AppendFormat("ID {0}|", Id.Code);
             output.AppendFormat("Value: {0} (0x{0:X})|", Id.Value);
             output.AppendFormat("Level: {0}|", Level.Name);
+            output.AppendFormat("Version: {0}|", Version);
 
             if (!string.IsNullOrEmpty(Task.Name))
             {

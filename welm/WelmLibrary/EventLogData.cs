@@ -8,6 +8,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 
 namespace WelmLibrary
@@ -43,7 +44,6 @@ namespace WelmLibrary
         public bool IsEnabled { get; set; }
 
         /// <summary>
-
         /// Specifies if the log metadata was defined with a .mc file manifest or an XML file manifest. The .mc file is the classic format.
         /// </summary>
         public bool IsClassic { get; set; }
@@ -75,6 +75,12 @@ namespace WelmLibrary
         /// </summary>
         public string FilePath { get; set; }
 
+        /// <summary>
+        /// The security descriptor in SDDL format.
+        /// </summary>
+        public string SecurityDescriptor { get; set; }
+        //public RawSecurityDescriptor SecurityDescriptor { get; set; } //causes events.json to triple in size
+
         public EventLogData()
         {
             Name = string.Empty;
@@ -90,6 +96,7 @@ namespace WelmLibrary
             // it will add the overhead of retrieving all the events though which significantly slows log retrieval
             Providers = new List<string>();
             FilePath = string.Empty;
+            SecurityDescriptor = string.Empty;
         }
 
         /// <summary>
@@ -113,6 +120,7 @@ namespace WelmLibrary
                     DebugGuid = logConfig.ProviderControlGuid ?? Guid.Empty;
                     Providers = logConfig.ProviderNames == null ? new List<string>() : logConfig.ProviderNames.ToList<string>();
                     FilePath = logConfig.LogFilePath ?? string.Empty;
+                    SecurityDescriptor = logConfig.SecurityDescriptor ?? string.Empty; //new RawSecurityDescriptor(logConfig.SecurityDescriptor);
                 }
             }
             catch (UnauthorizedAccessException uae)
@@ -130,8 +138,9 @@ namespace WelmLibrary
                 DebugGuid = Guid.Empty;
                 Providers = new List<string>();
                 FilePath = string.Empty;
+                SecurityDescriptor = string.Empty;
 
-                Logger.Warn(uae, CultureInfo.CurrentCulture, "Access denied to event log '{0}' while processing event logs: {1}{2}{3}", logName, uae.Message, Environment.NewLine, uae.StackTrace);
+                Logger.Error(uae, CultureInfo.CurrentCulture, "Access denied to event log '{0}' while processing event logs: {1}{2}{3}", logName, uae.Message, Environment.NewLine, uae.StackTrace);
             }
         }
 
@@ -216,15 +225,16 @@ namespace WelmLibrary
                                 csvWriter.WriteField<Guid>(log.DebugGuid);
                                 csvWriter.WriteField<int>(log.Providers.Count); // no header due to type mismatch for property
                                 csvWriter.WriteField<string>(log.FilePath);
+                                //csvWriter.WriteField<string>(log.SecurityDescriptor.GetSddlForm(AccessControlSections.All));
+                                csvWriter.WriteField<string>(log.SecurityDescriptor);
                                 csvWriter.NextRecord();
                             }
 
                             sw.Flush();
                         }
 
-                        csvBuilder.Insert(0, "\"Name\",\"Provider\",\"MaximumSize\",\"Retention\",\"IsEnabled\",\"IsClassic\",\"LogType\",\"Isolation\",\"DebugGuid\",\"Providers\",\"FilePath\"" + Environment.NewLine);
+                        csvBuilder.Insert(0, "\"Name\",\"Provider\",\"MaximumSize\",\"Retention\",\"IsEnabled\",\"IsClassic\",\"LogType\",\"Isolation\",\"DebugGuid\",\"Providers\",\"FilePath\",\"SecurityDescriptor\"" + Environment.NewLine);
                         data = csvBuilder.ToString();
-
                         break;
                     default:
                         break;
@@ -258,6 +268,12 @@ namespace WelmLibrary
 
             output.AppendFormat("Providers: {0}|", Providers.Count);
             output.AppendFormat("FilePath: {0}", FilePath);
+
+            if (SecurityDescriptor != null)
+            {
+                output.AppendFormat("SecurityDescriptor: {0}|", SecurityDescriptor);
+                //output.AppendFormat("SecurityDescriptor: {0}|", SecurityDescriptor.GetSddlForm(AccessControlSections.All));
+            }
 
             string s = output.ToString().Trim();
 

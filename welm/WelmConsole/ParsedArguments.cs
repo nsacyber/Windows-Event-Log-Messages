@@ -14,30 +14,31 @@ namespace WelmConsole
 
         public bool Events => _args.ContainsKey("--events") && (bool.Parse(_args["--events"].ToString()));
 
-        public OutputFormat Format
-        {
-            get
-            {
-                if (!_args.ContainsKey("--format"))
-                {
-                    throw new DocoptExitException("No format specified");
-                }
-
-                string rawFormat = _args["--format"].ToString();
-                OutputFormat format;
-
-                if (!Enum.TryParse<OutputFormat>(rawFormat, true, out format))
-                {
-                    throw new DocoptExitException("Invalid format of " + rawFormat);
-                }
-
-                return format;             
-            }
-        }
+        public OutputFormat Format { get; private set; }
 
         public ParsedArguments(IDictionary<string, ValueObject> arguments)
         {
+            if (arguments == null || arguments.Count == 0)
+            {
+                throw new DocoptExitException("No arguments specified");
+            }
+
             _args = arguments;
+
+            if (!_args.ContainsKey("--format"))
+            {
+                throw new DocoptExitException("No format specified");
+            }
+
+            string rawFormat = _args["--format"].ToString();
+            OutputFormat format;
+
+            if (!Enum.TryParse<OutputFormat>(rawFormat, true, out format))
+            {
+                throw new DocoptExitException("Invalid format of " + rawFormat);
+            }
+
+            Format = format;
         }
     }
 }

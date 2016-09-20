@@ -4,10 +4,10 @@ Set-StrictMode -Version 4
 Function Get-ExplicitFacilities() {
     <#
     .SYNOPSIS
-    Gets explicitly defined NT Facility code names and values.
+    Gets explicitly defined NTSTATUS facility code names and values.
 
     .DESCRIPTION
-    Gets explicitly defined NT Facility code names and values.
+    Gets explicitly defined NTSTATUS facility code names and values.
 
     .PARAMETER Path
     The path to ntstatus.h.
@@ -200,17 +200,66 @@ Function Get-ImplicitFacilities() {
         $facility = Get-Bits -MostSignificantBit 27 -LeastSignificantBit 16 -Number $value
 
         if($facilities.ContainsKey($facility)) {
-            #$v = $facilities[$facility]
-            #$v++
-            #$facilities[$facility] = $v
-
             $n = $facilities[$facility]
             $n += $name
             $facilities[$facility]= $n
         } else {
-            #$facilities.Add($facility, 1)
-
             $facilities.Add($facility, [string[]]@($name))
+        }
+    }
+
+    return $facilities
+}
+
+Function Get-LoggedFacilities() {
+    <#
+    .SYNOPSIS
+    Gets facility values from WELM log files containing warning messages.
+
+    .DESCRIPTION
+    Gets facility values from WELM log files containing warning messages. Facilities values are logged as invalid or undocumented.
+
+    .PARAMETER Path
+    The path to a _warn.txt log file produced by WELM.
+
+    .EXAMPLE
+    (Get-LoggedFacilities -Path 'C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist\welm.20160919133838_warn.txt' -Type Invalid).GetEnumerator() | Sort-Object { [int]$_.Name }
+
+    .EXAMPLE
+    (Get-LoggedFacilities -Path 'C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist\welm.20160919133838_warn.txt' -Type Undocumented).GetEnumerator() | Sort-Object { [int]$_.Name }
+    #>
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    Param(
+        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to a WELM log file containing warning messages')]
+        [ValidateNotNullOrEmpty()]
+        [ValidatePattern('^.*_warn\.txt$')]
+        [System.IO.FileInfo]$Path,  
+        
+        [Parameter(Position=1, Mandatory=$true, HelpMessage='The type of facility')]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet('Invalid','Undocumented', IgnoreCase=$true)]
+        [string]$Type
+    )
+    Write-Host "^.*$Type facility\: (\d+).*$"
+
+    $facilities = @{}
+
+    $content = Get-Content $Path -Raw
+
+    $lines = $content -split [System.Environment]::NewLine
+
+    $lines | ForEach-Object {
+        if ($_ -match "^.*$Type facility: (\d+).*$") {
+            $value = $matches[1]
+
+            if ($facilities.ContainsKey($value)) {
+                $v = $facilities[$value]
+                $v++
+                $facilities[$value] = $v
+            } else {
+                $facilities.Add($value, 1)
+            }
         }
     }
 

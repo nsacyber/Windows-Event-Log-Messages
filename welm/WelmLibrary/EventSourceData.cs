@@ -90,81 +90,15 @@ namespace WelmLibrary.Classic
                             switch (valueName.ToLower(CultureInfo.CurrentCulture))
                             {
                                 case "providerguid":
-                                    {
-                                        ProviderGuid = new Guid((string)key.GetValue(valueName));
-                                        break;
-                                    }
+                                    ProviderGuid = new Guid((string)key.GetValue(valueName));
+                                    break;
                                 case "publisherguid":
                                     Logger.Info(CultureInfo.CurrentCulture, "Unsupported registry value name PublisherGuid was converted to ProviderGuid for source {0}", sourceName);
                                     ProviderGuid = new Guid((string)key.GetValue(valueName));
                                     break;
                                 case "eventmessagefile":
                                     string eventMessageFiles = (string)key.GetValue(valueName);
-
-                                    if (!string.IsNullOrEmpty(eventMessageFiles))
-                                    {
-                                        string systemRootPath = Environment.GetEnvironmentVariable("systemroot").ToLower(CultureInfo.CurrentCulture);
-                                        string winDirPath = Environment.GetEnvironmentVariable("windir").ToLower(CultureInfo.CurrentCulture);
-
-                                        // fix up paths to be literal paths
-                                        eventMessageFiles = eventMessageFiles.ToLower(CultureInfo.CurrentCulture);
-                                        eventMessageFiles = eventMessageFiles.Replace("%systemroot%", systemRootPath);
-                                        eventMessageFiles = eventMessageFiles.Replace(@"\systemroot", systemRootPath);
-                                        eventMessageFiles = eventMessageFiles.Replace("%windir%", winDirPath);
-                                        eventMessageFiles = eventMessageFiles.Replace("$(runtime.system32)", winDirPath + @"\system32"); //seen on Windows 8+ for WinHttpAutoProxySvc
-
-                                        foreach (string messageFilePath in eventMessageFiles.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries))
-                                        {
-                                            // we can't directly modify messageFilePath since it is part of the foreach
-                                            string modifiedMessageFilePath = messageFilePath.Trim();
-
-                                            // some paths are missing a slash between %systemroot% and the rest of the path
-                                            // one example is the EventMessageFile registry value for the Eventlog\System\vsmraid\ on Windows Vista
-                                            // we do the same check for %windir% just to be safe
-
-                                            if (modifiedMessageFilePath.StartsWith(systemRootPath, StringComparison.CurrentCultureIgnoreCase) && !modifiedMessageFilePath.StartsWith(systemRootPath + @"\", StringComparison.CurrentCultureIgnoreCase))
-                                            {
-                                                modifiedMessageFilePath = modifiedMessageFilePath.Replace(systemRootPath, systemRootPath + @"\");
-                                            }
-
-                                            if (modifiedMessageFilePath.StartsWith(winDirPath, StringComparison.CurrentCultureIgnoreCase) && !modifiedMessageFilePath.StartsWith(winDirPath + @"\", StringComparison.CurrentCultureIgnoreCase))
-                                            {
-                                                modifiedMessageFilePath = modifiedMessageFilePath.Replace(winDirPath, winDirPath + @"\");
-                                            }
-
-                                            // check to see if the messagefile has already been parsed
-                                            // otherwise parse the messagefile and add it to the cache
-                                            if (EventMessageFileCache.Instance.Contains(modifiedMessageFilePath))
-                                            {
-                                                EventMessageFiles.Add(EventMessageFileCache.Instance.Get(modifiedMessageFilePath));
-                                            }
-                                            else
-                                            {
-                                                string[] messageFilePaths = modifiedMessageFilePath.Split(new string[] { @"\" }, StringSplitOptions.RemoveEmptyEntries);
-
-                                                if (messageFilePaths.Length > 0)
-                                                {
-                                                    string file = messageFilePaths.Last();
-
-                                                    if (!string.IsNullOrEmpty(file))
-                                                    {
-                                                        //change file to be logName OR add logName and sourceName to EventMessageFile
-                                                        EventMessageFile messageFile = new EventMessageFile(logName, sourceName, file, modifiedMessageFilePath);
-                                                        EventMessageFileCache.Instance.Add(messageFile);
-                                                        EventMessageFiles.Add(messageFile);
-                                                    }
-                                                    else
-                                                    {
-                                                        Logger.Info(CultureInfo.CurrentCulture, "Message file name is empty '{0}'='{1}' for log '{2}' and source '{3}'", modifiedMessageFilePath, eventMessageFiles, logName, sourceName);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    Logger.Info(CultureInfo.CurrentUICulture, "Message file path has no elements '{0}'='{1}' for log '{2}' and source '{3}'", modifiedMessageFilePath, eventMessageFiles, logName, sourceName);
-                                                }
-                                            }
-                                        }
-                                    }
+                                    ProcessEventMessageFiles(logName, sourceName, eventMessageFiles);
                                     break;
                                 case "typessupported":
                                     if (key.GetValueKind(valueName) == RegistryValueKind.DWord)
@@ -182,7 +116,7 @@ namespace WelmLibrary.Classic
                                     ParameterMessageFile = (string)key.GetValue(valueName);
                                     break;
                                 case "eventsourceflags":
-                                    // might be dwFlags in  AUTHZ_SOURCE_SCHEMA_REGISTRATION: https://msdn.microsoft.com/en-us/library/windows/desktop/aa376325(v=vs.85).aspx
+                                    // might be dwFlags in  UTHZ_SOURCE_SCHEMA_REGISTRATION: https://msdn.microsoft.com/en-us/library/windows/desktop/aa376325(v=vs.85).aspx
                                     Int32 flags = (Int32)key.GetValue(valueName);
                                     Logger.Info(CultureInfo.CurrentCulture, "Unsupported registry value name EventSourceFlags has a value of {0} (0x{1:X}) for source {2}", flags, flags, sourceName);
                                     break;
@@ -196,6 +130,81 @@ namespace WelmLibrary.Classic
                 else
                 {
                     Logger.Error(CultureInfo.CurrentCulture, @"Failed to open registry key {0}\{1}\{2}", EventLogKey, logName, sourceName);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Process all the entries in the EventMessageFile registry value.
+        /// </summary>
+        /// <param name="logName"></param>
+        /// <param name="sourceName"></param>
+        /// <param name="eventMessageFiles"></param>
+        private void ProcessEventMessageFiles(string logName, string sourceName, string eventMessageFiles)
+        {
+            if (!string.IsNullOrEmpty(eventMessageFiles))
+            {
+                string systemRootPath = Environment.GetEnvironmentVariable("systemroot").ToLower(CultureInfo.CurrentCulture);
+                string winDirPath = Environment.GetEnvironmentVariable("windir").ToLower(CultureInfo.CurrentCulture);
+
+                // fix up paths to be literal paths
+                eventMessageFiles = eventMessageFiles.ToLower(CultureInfo.CurrentCulture);
+                eventMessageFiles = eventMessageFiles.Replace("%systemroot%", systemRootPath);
+                eventMessageFiles = eventMessageFiles.Replace(@"\systemroot", systemRootPath);
+                eventMessageFiles = eventMessageFiles.Replace("%windir%", winDirPath);
+                eventMessageFiles = eventMessageFiles.Replace("$(runtime.system32)", Environment.GetFolderPath(Environment.SpecialFolder.System)); //seen on Windows 8+ for WinHttpAutoProxySvc
+
+                foreach (string messageFilePath in eventMessageFiles.Split(new string[] {";"}, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    // can't directly modify messageFilePath since it is part of the foreach
+                    string modifiedMessageFilePath = messageFilePath.Trim();
+
+                    // some paths are missing a slash between %systemroot% and the rest of the path
+                    // one example is the EventMessageFile registry value for the Eventlog\System\vsmraid\ on Windows Vista
+                    // we do the same check for %windir% just to be safe
+
+                    if (modifiedMessageFilePath.StartsWith(systemRootPath, StringComparison.CurrentCultureIgnoreCase) &&
+                        !modifiedMessageFilePath.StartsWith(systemRootPath + @"\", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        modifiedMessageFilePath = modifiedMessageFilePath.Replace(systemRootPath, systemRootPath + @"\");
+                    }
+
+                    if (modifiedMessageFilePath.StartsWith(winDirPath, StringComparison.CurrentCultureIgnoreCase) &&
+                        !modifiedMessageFilePath.StartsWith(winDirPath + @"\", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        modifiedMessageFilePath = modifiedMessageFilePath.Replace(winDirPath, winDirPath + @"\");
+                    }
+
+                    // check to see if the messagefile has already been parsed
+                    // otherwise parse the messagefile and add it to the cache
+                    if (EventMessageFileCache.Instance.Contains(modifiedMessageFilePath))
+                    {
+                        EventMessageFiles.Add(EventMessageFileCache.Instance.Get(modifiedMessageFilePath));
+                    }
+                    else
+                    {
+                        string[] messageFilePaths = modifiedMessageFilePath.Split(new string[] {@"\"}, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (messageFilePaths.Length > 0)
+                        {
+                            string file = messageFilePaths.Last();
+
+                            if (!string.IsNullOrEmpty(file))
+                            {
+                                EventMessageFile messageFile = new EventMessageFile(logName, sourceName, file, modifiedMessageFilePath);
+                                EventMessageFileCache.Instance.Add(messageFile);
+                                EventMessageFiles.Add(messageFile);
+                            }
+                            else
+                            {
+                                Logger.Debug(CultureInfo.CurrentCulture, "Message file name is empty '{0}'='{1}' for log '{2}' and source '{3}'", modifiedMessageFilePath, eventMessageFiles, logName, sourceName);
+                            }
+                        }
+                        else
+                        {
+                            Logger.Debug(CultureInfo.CurrentUICulture, "Message file path has no elements '{0}'='{1}' for log '{2}' and source '{3}'", modifiedMessageFilePath, eventMessageFiles, logName, sourceName);
+                        }
+                    }
                 }
             }
         }
@@ -230,7 +239,7 @@ namespace WelmLibrary.Classic
                                     }
                                     else
                                     {
-                                        Logger.Info(CultureInfo.CurrentCulture, @"Did not add '{0}\{1}' for {2} due to being a duplicate", EventLogKey, logName, sourceName);
+                                        Logger.Debug(CultureInfo.CurrentCulture, @"Did not add '{0}\{1}' for {2} due to being a duplicate", EventLogKey, logName, sourceName);
                                     }
                                 }
                             }
@@ -285,9 +294,7 @@ namespace WelmLibrary.Classic
                         };
 
                         data = JsonConvert.SerializeObject(sources, settings);
-
                         break;
-
                     case "csv":
                         CsvConfiguration config = new CsvConfiguration
                         {
@@ -405,6 +412,4 @@ namespace WelmLibrary.Classic
             return Name.GetHashCode() + LogName.GetHashCode();
         }
     }
-
-
 }

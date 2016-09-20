@@ -203,7 +203,6 @@ namespace WelmConsole
                 message = string.Format(CultureInfo.CurrentCulture, "The application encountered an unhandled exception: {0}{1}{2}", exception.Message, Environment.NewLine, exception.StackTrace);
 
             Logger.Fatal(exception, message);
-
             Environment.Exit((int)ProcessCode.UnhandledException);
         }
     }

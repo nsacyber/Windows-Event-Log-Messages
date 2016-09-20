@@ -78,12 +78,12 @@ namespace WelmLibrary
                 // for that case the EventId.Facility will be null
                 Facility = Enum.GetName(typeof (NtFacility), NtStatus.Facility) ?? string.Empty;
 
-                if (string.IsNullOrEmpty(Facility) )
+                if (string.IsNullOrEmpty(Facility))
                 {
-                    // TODO: this needs to be OS version aware since the maximum changes per major OS release
+                    // this could made OS version aware since the maximum changes per major OS release
                     if (NtStatus.Facility <= ((uint)NtFacility.Maximum))
                     {
-                        Logger.Info(CultureInfo.CurrentCulture, "Undocumented facility: {0} (0x{1:X}) ", NtStatus.Facility, NtStatus.Facility);
+                        Logger.Warn(CultureInfo.CurrentCulture, "Undocumented facility: {0} (0x{1:X}) ", NtStatus.Facility, NtStatus.Facility);
                     }
                     else
                     {
@@ -134,5 +134,4 @@ namespace WelmLibrary
             return Value.GetHashCode() + Code.GetHashCode();
         }
     }
-
 }
