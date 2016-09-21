@@ -1,18 +1,29 @@
-# Instructions for retrieving event information
+# Running WELM
 
-Install all features and roles in the operating system before running WELM to get the most complete output. This document describes how to do that for each major Windows operating system release starting with Windows XP.
+Once you have [built WELM](./Building WELM.md), copy the files from the dist folder to a virtual machine. Install all features and roles in the operating system before running WELM to get the most complete output. This document describes how to do that for each major Windows operating system release starting with Windows XP.
 
 WELM requires administrative rights to retrieve all event information. Specifically it needs administrative rights to get event information about the Security log, its related providers, and its events.
 
-## How to Retrieve Data 
+## Retrieving data
+
 Generally, here is what is required to retrieve data with WELM.
-1. Create a virtual machine.
+
+1. Create a virtual machines for the x86 and x64 versions of the operating system.
 1. Install WELM prerequisites (.Net 4.0) in the virtual machine.
 1. Enable all features in Windows either manually (XP, 2003, Vista, Server 2008) or with the provided Install-Features.ps1 PowerShell script (Windows 7/Server 2008 R2 and later). Run dcpromo on the server editions of the operating system in order to allow retrieving of all possible events.
 1. Copy welm.exe, NLog.config, and welm.bat to the virtual machine.
 1. Run welm.bat.
 1. Copy the generated data out of the virtual machine.
 1. Run **New-Statistics -Path 'C:\path to folder containing generated data'** from the Get-Statistics.ps1 file to generate statistics files based on the data.
+
+You can find operating system specific instructions below:
+
+* [Windows XP SP3](#windows-xp)
+* [Windows Server 2003 R2 SP1](#windows-server-2003)
+* [Windows Vista SP2/Windows Server 2008 R2](#windows-vista-windows-server-2008)
+* [Windows 7/Windows Server 2008 R2](#windows-7-windows-server-2008-r2)
+* [Windows 8/Windows Server 2012](#windows-8-windows-server-2012)
+* [Windows 8.1/Windows Server 2012 R2](windows-8.1-windows-server-2012-r2)
 
 
 ### Windows XP
@@ -31,7 +42,6 @@ Generally, here is what is required to retrieve data with WELM.
 
 
 Windows XP 64-bit needed file system redirection temporarily disabled in some cases since sysnative does not exist until Vista. Could've installed KB942859 and see what happens but P\Invoked Wow64DisableWow64FsRedirection and Wow64RevertWow64FsRedirection instead.
-
 
 ### Windows Server 2003
 
@@ -60,8 +70,7 @@ Also install the other parts as mentioned above (Server for NIS, Application Ser
 
 Run welm.
 
-
-### Windows Vista SP2/Server 2008 SP2
+### Windows Vista/Windows Server 2008
 
 1. While it is possible to script setup with pkgmgr and/or ocsetup, they are not ideal. It is much faster to select all the features manually in the UI. Make sure all items have a check mark rather than a filled in square.
 
@@ -76,8 +85,7 @@ Run welm.
 
 Can't install Hyper-V on x64 while already inside a Hyper-V VM. Server 2008 SP2 has to be installed on physical hardware in order to get those logs.
 
-
-### Windows 7 SP1/Server 2008 R2 SP1
+### Windows 7/Windows Server 2008 R2
 
 Net 3.5 is already installed by default on Windows 7. 
 
@@ -93,8 +101,7 @@ Can't install ADFS > FS Proxy, File Services > Windows Server 2003 File Services
 
 Install remaining features that are listed as Disabled at the very end. Run the script. After reboot everything will have to be done by keyboard but that's easy since all that's left is running welm.bat.
 
-
-### Windows 8/Server 2012
+### Windows 8/Windows Server 2012
 
 To install .Net 3.5 on an internet disconnected Windows 8 system, insert the Windows 8 ISO into the virtual drive and then run this command: dism /online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:D:\sources\sxs The /Source path will vary based on which drive letter was assigned to the drive that contains the Windows image.
 
@@ -102,15 +109,14 @@ Run the install all features script and reboot.
 
 Check all features are installed. If not, run the script again and reboot.
 
-
-### Windows 8.1/Server 2012 R2
+### Windows 8.1/Windows Server 2012 R2
 
 Same as Windows 8/Server 2012.
 
 
 Give it a network card in the Hyper-V settings.
 In the VM change it to a static IP.
-Remove Active Directory Certificate Services's Certification Authority sub option only. It needs to be removed because dcpromo doesn't want it. Do this from the Turn Windows Features on or off
+Remove Active Directory Certificate Services' Certification Authority sub option only. It needs to be removed because dcpromo doesn't want it. Do this from the Turn Windows Features on or off
 Go to Server Manager > AD DS > click the More... link in the light yellow bar thingy. Click the Promote this server to a domain controller link under the Action column. Follow the steps to create a new domain.
 Install the Certification Authority sub option again.
 
