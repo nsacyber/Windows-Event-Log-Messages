@@ -6,24 +6,24 @@ WELM requires administrative rights to retrieve all event information. Specifica
 
 ## Retrieving data
 
-Generally, here is what is required to retrieve data with WELM.
+Below are the generic steps for retrieving data with WELM.
 
 1. Create a virtual machines for the x86 and x64 versions of the operating system.
 1. Install WELM prerequisites (.Net 4.0) in the virtual machine.
 1. Enable all features in Windows either manually (XP, 2003, Vista, Server 2008) or with the provided Install-Features.ps1 PowerShell script (Windows 7/Server 2008 R2 and later). Run dcpromo on the server editions of the operating system in order to allow retrieving of all possible events.
-1. Copy welm.exe, NLog.config, and welm.bat to the virtual machine.
+1. Copy welm.exe, welm.bat, NLog.config, and Install-Features.ps1 to the virtual machine.
 1. Run welm.bat.
 1. Copy the generated data out of the virtual machine.
-1. Run **New-Statistics -Path 'C:\path to folder containing generated data'** from the Get-Statistics.ps1 file to generate statistics files based on the data.
+1. Run **New-Statistics -Path 'C:\path to folder containing retrieved data'** from the Get-Statistics.ps1 file to generate statistics files based on the data.
 
 You can find operating system specific instructions below:
 
 * [Windows XP SP3](#windows-xp)
 * [Windows Server 2003 R2 SP1](#windows-server-2003)
-* [Windows Vista SP2/Windows Server 2008 R2](#windows-vista-windows-server-2008)
-* [Windows 7/Windows Server 2008 R2](#windows-7-windows-server-2008-r2)
-* [Windows 8/Windows Server 2012](#windows-8-windows-server-2012)
-* [Windows 8.1/Windows Server 2012 R2](windows-8.1-windows-server-2012-r2)
+* [Windows Vista SP2/Windows Server 2008 R2](#windows-vistawindows-server-2008)
+* [Windows 7/Windows Server 2008 R2](#windows-7windows-server-2008-r2)
+* [Windows 8/Windows Server 2012](#windows-8windows-server-2012)
+* [Windows 8.1/Windows Server 2012 R2](#windows-81windows-server-2012-r2)
 
 
 ### Windows XP
