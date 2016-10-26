@@ -1,112 +1,418 @@
 #requires -version 2
 Set-StrictMode -Version 2
 
-$version = [system.environment]::osversion.version.major.tostring() + "." + [system.environment]::osversion.version.minor.tostring()
-$version = [decimal]$version
-
-if ($version -lt 6.1) {
-   Write-Error -Message 'dism does not exist on this OS version"'
-   return
+Function Test-InternetConnection() {
+    [CmdletBinding()]
+	[OutputType([bool])]
+	Param(
+	   [Parameter(Mandatory=$false, HelpMessage='The URL to test connectivity to')]
+	   [ValidateNotNullOrEmpty()]
+	   [string]$Url = 'http://www.msftncsi.com/ncsi.txt',
+	   	   
+	   [Parameter(Mandatory=$false, HelpMessage='The timeout period in seconds')]
+	   [int]$Timeout = 5 
+	)
+	
+	$connected = $false
+	$Url = $Url.ToLower()
+	
+	if (-not($Url.StartsWith('http://') -or $Url.StartsWith('https://'))) {
+	    $Url = 'http://{0}' -f $Url
+	}
+    
+	try {
+	    $proxyUri = [System.Net.WebRequest]::GetSystemWebProxy().GetProxy($Url)
+		
+		if ($Url -eq $proxyUri.OriginalString) {
+		    $response = Invoke-WebRequest -Uri $Url -TimeoutSec $Timeout -Verbose:$false
+		} else {
+		    $response = Invoke-WebRequest -Uri $Url -TimeoutSec $Timeout -Verbose:$false -Proxy $proxyUri -ProxyUseDefaultCredentials
+		}
+		
+	    $connected = $response.StatusCode -eq 200
+		
+	} catch {}
+	
+	return $connected
 }
 
-$mediapath = ''
+Function Invoke-Process() {
+    <#
+    .SYNOPSIS
+    Executes a process.
 
-if($version -ge 6.2) {
-   # get CD/DVD drive letter
-   $driveletter = Get-WmiObject -Class Win32_LogicalDisk -Filter "DriveType=5" | select DeviceID -expand DeviceID
+    .DESCRIPTION
+    Executes a process and waits for it to exit.
+
+    .PARAMETER Path
+    The path of the file to execute.
+
+    .PARAMETER Arguments
+    THe arguments to pass to the executable. Arguments with spaces in them are automatically quoted.
+
+    .PARAMETER PassThru
+    Return the results as an object.
+
+    .EXAMPLE
+    Invoke-Process -Path 'C:\Windows\System32\whoami.exe'
+
+    .EXAMPLE
+    Invoke-Process -Path 'C:\Windows\System32\whoami.exe' -Arguments '/groups'
+
+    .EXAMPLE
+    Invoke-Process -Path 'C:\Windows\System32\whoami.exe' -Arguments '/groups' -PassThru
+
+    .EXAMPLE
+    Invoke-Process -Path 'lgpo.exe' -Arguments '/g','C:\path to gpo folder' -PassThru
+    #>
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true, HelpMessage='The path of the file to execute')]
+        [ValidateNotNullOrEmpty()]
+        #[ValidateScript({Test-Path -Path $_ -PathType Leaf})]
+        #[ValidateScript({[System.IO.File]::Exists($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($_))})]
+        [string]$Path,
+
+        [Parameter(Mandatory=$false, HelpMessage='The arguments to pass to the executable')]
+        [ValidateNotNullOrEmpty()]
+        [string[]]$Arguments,
+
+        [Parameter(Mandatory=$false, HelpMessage='Return the results as an object')]
+        [switch]$PassThru
+    )
+
+    $parameters = $PSBoundParameters
+
+    $escapedArguments = ''
+
+    if ($parameters.ContainsKey('Arguments')) {
+        $Arguments | ForEach-Object {
+            if ($_.Contains(' ')) {
+                $escapedArguments = $escapedArguments,("`"{0}`"" -f $_) -join ' '
+            } else {
+                $escapedArguments = $escapedArguments,$_ -join ' '
+            }
+        }
+    }
+
+    $processInfo = New-Object System.Diagnostics.ProcessStartInfo 
+    $processInfo.FileName = $Path
+    $processInfo.RedirectStandardError = $true 
+    $processInfo.RedirectStandardOutput = $true 
+    $processInfo.UseShellExecute = $false 
+    $processInfo.CreateNoWindow = $true
+    $processInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
+    $processInfo.Arguments = $escapedArguments.Trim()
+    $process = New-Object System.Diagnostics.Process
+    $process.StartInfo = $processInfo 
+    $process.Start() | Out-Null 
+    $output = $process.StandardOutput.ReadToEnd() 
+    $process.WaitForExit()
+    
+    $exitCode = $process.ExitCode
+
+    if($PassThru) {
+        return [pscustomobject]@{
+            'ExitCode' = $exitCode;
+            'Output' = $output;
+            'Process' = $process;
+        }
+    }
+}
+
+Function Get-OperatingSystemVersion() {
+    <#
+    .SYNOPSIS
+    Gets the operating system version.
+
+    .DESCRIPTION
+    Gets the operating system version.
+
+    .PREREQUISITES
+    Windows 7 x86/x64 and later.
+
+    .EXAMPLE
+    Get-OperatingSystemVersion
+    #>
+    [CmdletBinding()]
+    [OutputType([System.Version])]
+    Param()
+
+    $major = 0
+    $minor = 0
+    $build = 0
+    $revision = 0
+
+    $currentVersionPath = 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion'
+
+    $isWindows10orLater = $null -ne (Get-ItemProperty -Path $currentVersionPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'CurrentMajorVersionNumber' -ErrorAction SilentlyContinue)
+
+    #todo: backport to Get-Item so it works on PowerShell 2.0
+
+    if($isWindows10orLater) {
+        $major = [Uint32](Get-ItemProperty -Path $currentVersionPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'CurrentMajorVersionNumber' -ErrorAction SilentlyContinue)
+        $minor = [UInt32](Get-ItemProperty -Path $currentVersionPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'CurrentMinorVersionNumber' -ErrorAction SilentlyContinue)
+        $build = [UInt32](Get-ItemProperty -Path $currentVersionPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'CurrentBuildNumber' -ErrorAction SilentlyContinue)
+        $revision = [UInt32](Get-ItemProperty -Path $currentVersionPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'UBR' -ErrorAction SilentlyContinue)
+    } else {
+        $major = [Uint32]((Get-ItemProperty -Path $currentVersionPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'CurrentVersion' -ErrorAction SilentlyContinue) -split '\.')[0]
+        $minor = [UInt32]((Get-ItemProperty -Path $currentVersionPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'CurrentVersion' -ErrorAction SilentlyContinue) -split '\.')[1]
+        $build = [UInt32](Get-ItemProperty -Path $currentVersionPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty 'CurrentBuild' -ErrorAction SilentlyContinue)
+        #revision could be service pack level on downlevel OSes
+    }
+
+    return [System.Version]('{0}.{1}.{2}.{3}' -f $major,$minor,$build,$revision)
+}
+
+Function Get-WindowsMediaPath() {
+    <#
+    .SYNOPSIS
+    Gets the Windows install media path.
+
+    .DESCRIPTION
+    Gets the Windows install media path.
+
+    .EXAMPLE
+    Get-WindowsMediaPath
+    #>
+    [CmdletBinding()]
+	[OutputType([bool])]
+	Param()
+
+    $mediaPath = ''
+	
+    # get CD/DVD drives
+    $drives = @(Get-WmiObject -Class Win32_LogicalDisk -Filter 'DriveType=5')
+    
+    if ($drives.Count -ne 0) {
+        foreach($drive in $drives) {
+            $driveLetter = ($drive | Select-Object DeviceID -ExpandProperty DeviceID)
+
+            $size = ($drive | Select-Object Size -ExpandProperty Size)
+
+            if($size -eq $null) {
+                continue
+            }
+
+            if($size -eq 0) {
+                continue
+            }
+
+            if((Join-Path $driveLetter '\sources\sxs' | Test-Path -PathType Container)) {
+                $mediaPath = Join-Path $driveLetter '\sources\sxs'
+                break
+            } else {
+                continue
+            }
+        }
+    }   
+
+    return $mediaPath	
+}
+
+Function Invoke-InstallFeatures() {
+    [CmdletBinding()]
+    Param()
+
+    $log = New-Object System.Text.StringBuilder
+
+    $dismPath = ''
+
+    #if ([IntPtr]::Size -eq 8) {
+    #    $dismPath  = '{0}\System32\dism.exe' -f $env:SystemRoot
+    #} else {
+    #    $dismPath  = '{0}\SysWOW64\dism.exe' -f $env:SystemRoot
+    #}
+
+    $dismPath = 'dism.exe'
+	
+    $timestamp = '{0:yyyMMddHHmmss}' -f [System.DateTime]::Now
+
+    $osVersion = Get-OperatingSystemVersion
+    $version = [decimal]('{0}.{1}' -f $osVersion.Major,$osVersion.Minor)
+
+    if ($version -lt 6.1) {
+        $message = 'dism does not exist on this OS version'
+        [void]$log.AppendLine($message)
+
+        $logData = $log.ToString()
+
+        $returnValue = [pscustomobject]@{
+            NeedsReboot = $false;
+            NeedsInstall = $false; # no way to automate install on this OS
+            Log = $logData;
+        }
+    }
+
+    $connected = Test-InternetConnection
+	
+    $mediaPath = ''
+	
+	if($version -ge 6.2 -and -not($connected)) {
+		$mediaPath = Get-WindowsMediaPath
+
+        if ($mediaPath -eq '') {
+            $message ='No CD/DVD drive, no CD/DVD inserted, or the CD/DVD inserted is not Windows installation media'
+            [void]$log.AppendLine($message)
+
+            $logData = $log.ToString()
+
+            $returnValue = [pscustomobject]@{
+                NeedsReboot = $false;
+                NeedsInstall = $true;
+                Log = $logData;
+            }
+        }
+    }
   
-   if ($driveletter -eq $null) {
-      Write-Error 'No CD/DVD drive found'
-      return
-   }
+    $osType = Get-WmiObject Win32_OperatingSystem | select ProductType -Expand ProductType
 
-   $size = Get-WmiObject Win32_LogicalDisk | select Size -expand Size
+    $result = Invoke-Process -Path $dismPath -Arguments '/online','/get-features','/format:table' -PassThru
 
-   if($size -eq $null) {
-      Write-Error -Message "No disk inserted into CD/DVD drive $driveletter"
-      return
-   }
+    $features = $result.Output
 
-   if($size -eq 0) {
-      Write-Error -Message "Empty disk in CD/DVD drive $driveletter"
-      return
-   }
+    if (-not($features.Contains('Disabled'))) {
+        $message = 'All features are installed'
+        Write-Verbose -Message $message
+        [void]$log.AppendLine($message)
 
-   if(-not (Join-Path $driveletter '\sources\sxs' | Test-Path -pathType container)) {
-      Write-Error -Message "$driveletter does not contain Windows installation media"
-      return
-   }
+        $logData = $log.ToString()
 
-   $mediapath = Join-Path $driveletter "\sources\sxs"
+        $returnValue = [pscustomobject]@{
+            NeedsReboot = $false;
+            NeedsInstall = $true;
+            Log = $logData;
+        }
+
+        return $returnValue
+    }
+	
+	$matches = $features | Select-String -Pattern 'Disabled' -AllMatches
+	$featuresToInstall = $matches.Matches.Count
+	$featuresSuccessfullyInstalled = 0
+
+    [void]$log.AppendLine('DISM feature status before')
+    [void]$log.AppendLine($features)
+
+    $errorCode = $result.ExitCode
+
+    if($errorCode -ne 0) {
+        if ($errorCode -eq 183) {
+            $message = 'dism is busy so wait or reboot if this keeps happening'
+        } else {
+            $message = "dism returned an error code of $errorCode"
+        }
+
+        [void]$log.AppendLine($message)
+
+        $logData = $log.ToString()
+
+        $returnValue = [pscustomobject]@{
+            NeedsReboot = $true;
+            NeedsInstall = $true;
+            Log = $logData;
+        }
+
+        return $returnValue
+    }
+
+    $needsReboot = $false
+
+    $features = $features.Split([Environment]::NewLine,[System.StringSplitOptions]::RemoveEmptyEntries)
+
+    for ($i=7; $i -lt $features.Count-2; $i++) {
+
+        $indexOfBar = $features[$i].indexof('|')
+
+        $featureName = $features[$i].substring(0,$indexOfBar).trim()
+
+        $featureState = $features[$i].substring($indexOfBar+2, $features[$i].length-$indexOfBar-2).trim()
+
+        if ($featureState -eq "Enabled") {
+            $message - "$featureName was skipped because it was already installed"
+            Write-Verbose -Message $message
+            [void]$log.AppendLine($message)
+        #} #elseif (($featureName -eq "Microsoft-Hyper-V" -or $featureName -eq "VmHostAgent") -and $osType -ne 1 -and $version -eq 6.1) {
+            # installing Hyper-V on Server 2008 R2 causes the keyboard to stop working
+            # install it manually after installing all the other features and roles
+            # once that is done then run these commands
+
+            # dism /online /enable-feature /featureName:Microsoft-Hyper-V /NoRestart /Quiet
+            # dism /online /enable-feature /featureName:VmHostAgent /NoRestart /Quiet
+            # dism /online /enable-feature /featureName:Microsoft-Windows-RemoteFX-Host-Package /NoRestart /Quiet
+            # dism /online /enable-feature /featureName:Microsoft-Windows-RemoteFX-EmbeddedVideoCap-Setup-Package /NoRestart /Quiet
+
+            #Write-Warning -Message "$featureName was skipped since it breaks keyboard integration. install this feature manually at the very end" 
+        } else {       
+            $arguments = New-Object System.Collections.Generic.List[string]
+            $arguments.AddRange([string[]]@('/online','/enable-feature',"/featureName:$featureName",'/NoRestart','/Quiet'))
+
+            if ($version -ge 6.2) {
+                $arguments.Add('/All')
+            }
+
+            if ($featureName -eq 'NetFx3' -and -not($connected)) {
+                $arguments.Add('/LimitAccess')
+                $arguments.Add("/Source:$mediaPath")
+            }
+
+            $featureStart = [System.DateTime]::Now
+
+            $result = Invoke-Process -Path $dismPath -Arguments ([string[]]$arguments.ToArray()) -PassThru
+
+            $errorCode = $result.ExitCode
+            $message = $result.Output
+
+            $featureEnd = [System.DateTime]::Now
+
+			$timespan = [System.TimeSpan]($featureEnd - $featureStart)
+			
+            if ($errorCode -eq 0) {
+				$featuresSuccessfullyInstalled++
+                $message = ('{0} install succeeded. {1} of {2}. {3} minutes {4} seconds' -f $featureName,$featuresSuccessfullyInstalled,$featuresToInstall,$timespan.Minutes,$timespan.Seconds)
+				Write-Verbose -Message $message
+                [void]$log.AppendLine($message)
+            } elseif ($errorCode -eq 3010) {
+				$featuresSuccessfullyInstalled++
+                $needsReboot = $true
+                $message = ('{0} install succeeded and requires a system restart. {1} of {2}. {3} minutes {4} seconds' -f $featureName,$featuresSuccessfullyInstalled,$featuresToInstall,$timespan.Minutes,$timespan.Seconds)
+                Write-Verbose -Message $message
+                [void]$log.AppendLine($message)
+            } elseif ($errorCode -eq 50) {
+                $needsInstall = $true
+                $message = "$featureName install failed. a required feature was not already installed"
+                Write-Warning -Message $message
+                [void]$log.AppendLine($message)
+            } else {
+                $needsInstall = $true
+                $message = "$featureName install failed with exit code $errorCode and message $message" 
+                Write-Warning -Message $message
+                [void]$log.AppendLine($message)
+            }
+        }
+    }
+
+    $result = Invoke-Process -Path $dismPath -Arguments '/online','/get-features','/format:table' -PassThru
+
+    $features = $result.Output
+
+    [void]$log.AppendLine('DISM feature status after')
+    [void]$log.AppendLine($features)
+
+    $needsInstall = $false
+
+    # todo: check for any features that are not installed yet (well, any except for known bads (e.g. breaks keyboard integration)) rather than check for anything being in the Disabled state
+    if ($features.Contains('Disabled')) {
+        $needsInstall = $true
+    }
+
+    $logData = $log.ToString()
+
+    $returnValue = [pscustomobject]@{
+        NeedsReboot = $needsReboot;
+        NeedsInstall = $needsInstall;
+        Log = $logData;
+    }
+
+    return $returnValue
 }
-
-
-$osType = Get-WmiObject Win32_OperatingSystem | select ProductType -expand ProductType
-
-$features = dism.exe /online /get-features /format:table
-
-$errorcode = $lastexitcode
-
-if ($errorcode -eq 183) {
-   Write-Error -Message 'dism is busy so wait or reboot if this keeps happening'
-   return
-} elseif ($errorcode -ne 0) {
-   Write-Error -Message 'dism returned an error code of $errorcode'
-   return
-}
-
-
-for ($i=12; $i -lt $features.Count-2; $i++) {
-
-   $indexofbar = $features[$i].indexof("|")
-
-   $featurename = $features[$i].substring(0,$indexofbar).trim()
-
-   $featurestate = $features[$i].substring($indexofbar+2, $features[$i].length-$indexofbar-2).trim()
-
-   if ($featurestate -eq "Enabled") {
-      Write-Verbose -Message "$featurename was skipped because it was already installed" 
-} elseif (($featurename -eq "Microsoft-Hyper-V" -or $featurename -eq "VmHostAgent") -and $osType -ne 1 -and $version -eq 6.1) {
-      # installing Hyper-V on Server 2008 R2 causes the keyboard to stop working
-      # install it manually after installing all the other features and roles
-      # once that is done then run these commands
-
-      # dism /online /enable-feature /featurename:Microsoft-Hyper-V /NoRestart /Quiet
-      # dism /online /enable-feature /featurename:VmHostAgent /NoRestart /Quiet
-      # dism /online /enable-feature /featurename:Microsoft-Windows-RemoteFX-Host-Package /NoRestart /Quiet
-      # dism /online /enable-feature /featurename:Microsoft-Windows-RemoteFX-EmbeddedVideoCap-Setup-Package /NoRestart /Quiet
-
-      Write-Warning -Message "$featurename was skipped since it breaks keyboard integration. install this feature manually at the very end" 
-   } else {
-      
-	  # check if system is on the internet or not
-
-      if ($featurename -eq "NetFx3") {
-         if ($version -ge 6.2) {
-            dism /online /enable-feature /featurename:$featurename /All /NoRestart /Quiet /LimitAccess /Source:$mediapath 2>&1 | out-null
-         } else {
-            dism /online /enable-feature /featurename:$featurename /NoRestart /Quiet /LimitAccess /Source:$mediapath 2>&1 | out-null
-         }
-      } else {
-         if ($version -ge 6.2) {
-            dism /online /enable-feature /featurename:$featurename /All /NoRestart /Quiet 2>&1 | out-null
-         } else {
-            dism /online /enable-feature /featurename:$featurename /NoRestart /Quiet 2>&1 | out-null
-         }
-      }
-
-      $errorcode = $lastexitcode
-
-      if ($errorcode -eq 0) {
-         Write-Verbose -Message "$featurename install succeeded" 
-      } elseif ($errorcode -eq 3010) {
-         Write-Verbose -Message "$featurename install succeeded and requires a system restart" 
-      } elseif ($errorcode -eq 50) {
-         Write-Warning -Message "$featurename install failed. a required feature was not already installed" 
-      } else {
-         Write-Warning -Message "$featurename install failed with exit code $errorcode" 
-      }
-   }
-}
-
-return

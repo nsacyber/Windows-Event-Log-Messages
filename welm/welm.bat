@@ -4,44 +4,59 @@ setlocal enabledelayedexpansion enableextensions
 
 if exist "%WINDIR%\System32\wevtutil.exe" (
 
-    if exist logs (
-        rmdir /S /Q logs
+    if exist wevtutil (
+        rmdir /S /Q wevtutil
     )
+
+    mkdir wevtutil
+    pushd wevtutil
 
     mkdir logs
     pushd logs
 
-    wevtutil el > logs.txt
+    wevtutil.exe el > logs.txt
+    move logs.txt ..\ >nul
 
-    for /f "tokens=*" %%A in ('wevtutil el') do (
+    for /f "tokens=*" %%A in ('wevtutil.exe el') do (
         set XML_FILENAME=%%A
         set XML_FILENAME=!XML_FILENAME:/=--!
-        wevtutil gl "%%A" /f:xml > "!XML_FILENAME!.xml"
+        wevtutil.exe gl "%%A" /f:xml > "!XML_FILENAME!.xml"
     )
 
     popd
-
-    if exist publishers (
-        rmdir /S /Q publishers
-    )
 
     mkdir publishers
     pushd publishers
 
-    wevtutil ep > publishers.txt
+    wevtutil.exe ep > publishers.txt
+    move publishers.txt ..\ >nul
 
-    for /f "tokens=*" %%A in ('wevtutil ep') do (
+    for /f "tokens=*" %%A in ('wevtutil.exe ep') do (
         set XML_FILENAME=%%A
         set XML_FILENAME=!XML_FILENAME:/=--!
-        wevtutil gp "%%A" /ge /gm:true /f:xml > "!XML_FILENAME!.xml"
+        wevtutil.exe gp "%%A" /ge /gm:true /f:xml > "!XML_FILENAME!.xml"
     )
+
+    popd
 
     popd
 )
 
+set WELMPATH=%~dp0%\welm.exe
 
-welm.exe -e -f all
-welm.exe -p -f all
-welm.exe -l -f all
+if exist welm (
+    rmdir /S /Q welm
+)
+
+mkdir welm
+pushd welm
+
+"%WELMPATH%" -e -f all
+"%WELMPATH%" -p -f all
+"%WELMPATH%" -l -f all
+
+popd
+
+move *.txt .\welm >nul
 
 endlocal
