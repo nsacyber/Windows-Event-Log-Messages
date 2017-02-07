@@ -3,37 +3,36 @@ Set-StrictMode -Version 2
 
 Function Test-InternetConnection() {
     [CmdletBinding()]
-	[OutputType([bool])]
-	Param(
-	   [Parameter(Mandatory=$false, HelpMessage='The URL to test connectivity to')]
-	   [ValidateNotNullOrEmpty()]
-	   [string]$Url = 'http://www.msftncsi.com/ncsi.txt',
-	   	   
-	   [Parameter(Mandatory=$false, HelpMessage='The timeout period in seconds')]
-	   [int]$Timeout = 5 
-	)
-	
-	$connected = $false
-	$Url = $Url.ToLower()
-	
-	if (-not($Url.StartsWith('http://') -or $Url.StartsWith('https://'))) {
-	    $Url = 'http://{0}' -f $Url
-	}
+    [OutputType([bool])]
+    Param(
+        [Parameter(Mandatory=$false, HelpMessage='The URL to test connectivity to')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Url = 'http://www.msftncsi.com/ncsi.txt',
+ 
+        [Parameter(Mandatory=$false, HelpMessage='The timeout period in seconds')]
+        [int]$Timeout = 5  
+    )
+
+    $connected = $false
+    $Url = $Url.ToLower()
+
+    if (-not($Url.StartsWith('http://') -or $Url.StartsWith('https://'))) {
+        $Url = 'http://{0}' -f $Url
+    }
     
-	try {
-	    $proxyUri = [System.Net.WebRequest]::GetSystemWebProxy().GetProxy($Url)
-		
-		if ($Url -eq $proxyUri.OriginalString) {
-		    $response = Invoke-WebRequest -Uri $Url -TimeoutSec $Timeout -Verbose:$false
-		} else {
-		    $response = Invoke-WebRequest -Uri $Url -TimeoutSec $Timeout -Verbose:$false -Proxy $proxyUri -ProxyUseDefaultCredentials
-		}
-		
-	    $connected = $response.StatusCode -eq 200
-		
-	} catch {}
-	
-	return $connected
+    try {
+        $proxyUri = [System.Net.WebRequest]::GetSystemWebProxy().GetProxy($Url)
+
+        if ($Url -eq $proxyUri.OriginalString) {
+            $response = Invoke-WebRequest -Uri $Url -TimeoutSec $Timeout -Verbose:$false
+        } else {
+            $response = Invoke-WebRequest -Uri $Url -TimeoutSec $Timeout -Verbose:$false -Proxy $proxyUri -ProxyUseDefaultCredentials
+        }
+
+        $connected = $response.StatusCode -eq 200
+    } catch {}
+
+    return $connected
 }
 
 Function Invoke-Process() {
@@ -176,11 +175,11 @@ Function Get-WindowsMediaPath() {
     Get-WindowsMediaPath
     #>
     [CmdletBinding()]
-	[OutputType([bool])]
-	Param()
+    [OutputType([bool])]
+    Param()
 
     $mediaPath = ''
-	
+
     # get CD/DVD drives
     $drives = @(Get-WmiObject -Class Win32_LogicalDisk -Filter 'DriveType=5')
     
@@ -207,7 +206,7 @@ Function Get-WindowsMediaPath() {
         }
     }   
 
-    return $mediaPath	
+    return $mediaPath
 }
 
 Function Invoke-InstallFeatures() {
@@ -225,7 +224,7 @@ Function Invoke-InstallFeatures() {
     #}
 
     $dismPath = 'dism.exe'
-	
+
     $timestamp = '{0:yyyMMddHHmmss}' -f [System.DateTime]::Now
 
     $osVersion = Get-OperatingSystemVersion
@@ -245,11 +244,11 @@ Function Invoke-InstallFeatures() {
     }
 
     $connected = Test-InternetConnection
-	
+
     $mediaPath = ''
-	
-	if($version -ge 6.2 -and -not($connected)) {
-		$mediaPath = Get-WindowsMediaPath
+
+    if($version -ge 6.2 -and -not($connected)) {
+        $mediaPath = Get-WindowsMediaPath
 
         if ($mediaPath -eq '') {
             $message ='No CD/DVD drive, no CD/DVD inserted, or the CD/DVD inserted is not Windows installation media'
@@ -286,10 +285,10 @@ Function Invoke-InstallFeatures() {
 
         return $returnValue
     }
-	
-	$matches = $features | Select-String -Pattern 'Disabled' -AllMatches
-	$featuresToInstall = $matches.Matches.Count
-	$featuresSuccessfullyInstalled = 0
+
+    $matches = $features | Select-String -Pattern 'Disabled' -AllMatches
+    $featuresToInstall = $matches.Matches.Count
+    $featuresSuccessfullyInstalled = 0
 
     [void]$log.AppendLine('DISM feature status before')
     [void]$log.AppendLine($features)
@@ -321,15 +320,16 @@ Function Invoke-InstallFeatures() {
     $features = $features.Split([Environment]::NewLine,[System.StringSplitOptions]::RemoveEmptyEntries)
 
     for ($i=7; $i -lt $features.Count-2; $i++) {
+        $message = ''
 
         $indexOfBar = $features[$i].indexof('|')
 
-        $featureName = $features[$i].substring(0,$indexOfBar).trim()
+        $featureName = $features[$i].substring(0,$indexOfBar).Trim()
 
-        $featureState = $features[$i].substring($indexOfBar+2, $features[$i].length-$indexOfBar-2).trim()
+        $featureState = $features[$i].substring($indexOfBar+2, $features[$i].length-$indexOfBar-2).Trim()
 
         if ($featureState -eq "Enabled") {
-            $message - "$featureName was skipped because it was already installed"
+            $message = "$featureName was skipped because it was already installed"
             Write-Verbose -Message $message
             [void]$log.AppendLine($message)
         #} #elseif (($featureName -eq "Microsoft-Hyper-V" -or $featureName -eq "VmHostAgent") -and $osType -ne 1 -and $version -eq 6.1) {
@@ -365,15 +365,15 @@ Function Invoke-InstallFeatures() {
 
             $featureEnd = [System.DateTime]::Now
 
-			$timespan = [System.TimeSpan]($featureEnd - $featureStart)
-			
+            $timespan = [System.TimeSpan]($featureEnd - $featureStart)
+
             if ($errorCode -eq 0) {
-				$featuresSuccessfullyInstalled++
+                $featuresSuccessfullyInstalled++
                 $message = ('{0} install succeeded. {1} of {2}. {3} minutes {4} seconds' -f $featureName,$featuresSuccessfullyInstalled,$featuresToInstall,$timespan.Minutes,$timespan.Seconds)
-				Write-Verbose -Message $message
+                Write-Verbose -Message $message
                 [void]$log.AppendLine($message)
             } elseif ($errorCode -eq 3010) {
-				$featuresSuccessfullyInstalled++
+                $featuresSuccessfullyInstalled++
                 $needsReboot = $true
                 $message = ('{0} install succeeded and requires a system restart. {1} of {2}. {3} minutes {4} seconds' -f $featureName,$featuresSuccessfullyInstalled,$featuresToInstall,$timespan.Minutes,$timespan.Seconds)
                 Write-Verbose -Message $message

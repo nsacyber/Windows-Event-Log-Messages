@@ -1,38 +1,38 @@
 Param(
     [Parameter(Mandatory=$true, HelpMessage='VM NAT network address')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [string]$VMNetwork,
-	
+
     [Parameter(Mandatory=$true, HelpMessage='VM NAT network subnet length aka prefix size')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [int]$VMNetworkPrefixSize,
 
     [Parameter(Mandatory=$true, HelpMessage='The name of a VM, that exists at the $HostVMPath, that will be cloned')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [string]$VMName,
 
     [Parameter(Mandatory=$true, HelpMessage='The path on the host where the payload for the VM is stored')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [string]$HostStagingPath,
 
     [Parameter(Mandatory=$true, HelpMessage='The path on the host where the VM payload results are stored')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [string]$HostResultPath,
 
     [Parameter(Mandatory=$true, HelpMessage='The path in the VM where the payload is stored')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [string]$VMStagingPath,
 
     [Parameter(Mandatory=$true, HelpMessage='The path in the VM where the payload results are stored')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [string]$VMResultPath,
 
     [Parameter(Mandatory=$true, HelpMessage='The path on the host where the PowerShell transcript is stored')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [string]$HostTranscriptPath,
 
     [Parameter(Mandatory=$false, HelpMessage='Do not delete the cloned virtual machine (useful for debugging)')]
-	[ValidateNotNullOrEmpty()]
+    [ValidateNotNullOrEmpty()]
     [switch]$NoDelete
 )
 
@@ -46,16 +46,16 @@ Function Get-ArchitectureName() {
     <#
     .SYNOPSIS
     Gets hardware architecture name.
-	
+
     .DESCRIPTION
     Gets hardware architecture name based on the architecture of the processor.
-	
+
     .PREREQUISITES
     None.
-	
+
     .PARAMETER Architecture
     Architecture value.
-	
+
     .EXAMPLE
     Get-ArchitectureName
     #>
@@ -89,13 +89,13 @@ Function Get-HardwareArchitectureName() {
     <#
     .SYNOPSIS
     Gets hardware architecture name.
-	
+
     .DESCRIPTION
     Gets hardware architecture name based on the architecture of the processor.
-	
+
     .PREREQUISITES
     None.
-	
+
     .EXAMPLE
     Get-HardwareArchitectureName
     #>
@@ -115,13 +115,13 @@ Function Get-OperatingSystemArchitectureName() {
     <#
     .SYNOPSIS
     Gets operating system architecture name.
-	
+
     .DESCRIPTION
     Gets operating system architecture name.
-	
+
     .PREREQUISITES
     Windows XP x86/x64 and later, Windows Server 2003 x86/x64 and later.
-	
+
     .EXAMPLE
     Get-OperatingSystemArchitectureName
     #>
@@ -192,13 +192,13 @@ Function Get-HardwareBitness() {
     <#
     .SYNOPSIS
     Gets hardware bitness.
-	
+
     .DESCRIPTION
     Gets hardware bitness.
-	
+
     .PREREQUISITES
     None.
-	
+
     .EXAMPLE
     Get-HardwareBitness
     #>
@@ -217,13 +217,13 @@ Function Get-OperatingSystemBitness() {
     <#
     .SYNOPSIS
     Gets operating system bitness.
-	
+
     .DESCRIPTION
     Gets operating system bitness.
-	
+
     .PREREQUISITES
     None.
-	
+
     .EXAMPLE
     Get-OperatingSystemBitness
     #>
@@ -242,13 +242,13 @@ Function Get-OperatingSystemReleaseId() {
     <#
     .SYNOPSIS
     Gets the operating system release identifier.
-	
+
     .DESCRIPTION
     Gets the Windows 10 operating system release identifier (e.g. 1507, 1511, 1607).
-	
+
     .PREREQUISITES
     Windows 10 x86/x64 and later.
-	
+
     .EXAMPLE
     Get-OperatingSystemReleaseId
     #>
@@ -265,13 +265,13 @@ Function Get-OperatingSystemEdition() {
     <#
     .SYNOPSIS
     Gets the operating system edition.
-	
+
     .DESCRIPTION
     Gets the operating system edition.
-	
+
     .PREREQUISITES
     Windows 7 x86/x64 and later.
-	
+
     .EXAMPLE
     Get-OperatingSystemEdition
     #>
@@ -288,13 +288,13 @@ Function Get-OperatingSystemVersion() {
     <#
     .SYNOPSIS
     Gets the operating system version.
-	
+
     .DESCRIPTION
     Gets the operating system version.
-	
+
     .PREREQUISITES
     Windows 7 x86/x64 and later.
-	
+
     .EXAMPLE
     Get-OperatingSystemVersion
     #>
@@ -359,7 +359,7 @@ Function Wait-VMShutdown() {
         [int]$Total = 300
     )
     
-    $count = 0	
+    $count = 0
 
     do {
         if ($count -ge $Total) {
@@ -393,7 +393,7 @@ Function Wait-VMStart() {
     )
     
     $count = 0
-    #$consecutive = 0	
+    #$consecutive = 0
 
     do {
         if ($count -ge $Total) {
@@ -432,7 +432,7 @@ Function Wait-VMSession() {
         [int]$Total = 300,
 
         [Parameter(Mandatory=$true, HelpMessage='VM credential')]
-		[ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [System.Management.Automation.PSCredential]$Credential
     )
 
@@ -449,11 +449,11 @@ Function Wait-VMSession() {
 
         Start-Sleep -Seconds $Frequency
         $session = New-PSSession -VMName $vmTargetName -Credential $Credential;
-		Write-Verbose -Message ('Waiting for a valid VM session. {0} {1} {2}' -f $count,$session.State,$session.Availability)
+        Write-Verbose -Message ('Waiting for a valid VM session. {0} {1} {2}' -f $count,$session.State,$session.Availability)
     } while($session.State -ne 'Opened' -and $session.Availability -ne 'Available')
-	# moves from Open/Available to Broken/None on shutdown
-	
-	Get-PSSession | Remove-PSSession
+    # moves from Open/Available to Broken/None on shutdown
+
+    Get-PSSession | Remove-PSSession
 }
 
 Function Move-Mouse() {
@@ -526,43 +526,43 @@ Function Send-Keys() {
 Function Invoke-Automation() {
     [CmdletBinding()]
     Param(
-	    [Parameter(Mandatory=$true, HelpMessage='VM NAT network address')]
-	    [ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory=$true, HelpMessage='VM NAT network address')]
+        [ValidateNotNullOrEmpty()]
         [string]$VMNetwork,
-	
+
         [Parameter(Mandatory=$true, HelpMessage='VM NAT network subnet length aka prefix size')]
         [int]$VMNetworkPrefixSize,
 
         [Parameter(Mandatory=$true, HelpMessage='The name of a VM, that exists at the $HostVMPath, that will be cloned')]
-	    [ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [string]$VMName,
 
         [Parameter(Mandatory=$true, HelpMessage='The path on the host where the payload for the VM is stored')]
-	    [ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [string]$HostStagingPath,
 
         [Parameter(Mandatory=$true, HelpMessage='The path on the host where the VM payload results are stored')]
-	    [ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [string]$HostResultPath,
 
         [Parameter(Mandatory=$true, HelpMessage='The path in the VM where the payload is stored')]
-	    [ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [string]$VMStagingPath,
 
         [Parameter(Mandatory=$true, HelpMessage='The path in the VM where the payload results are stored')]
-	    [ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [string]$VMResultPath,
 
         [Parameter(Mandatory=$true, HelpMessage='The path on the host where the PowerShell transcript is stored')]
-	    [ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [string]$HostTranscriptPath,
 
         [Parameter(Mandatory=$false, HelpMessage='Do not delete the cloned virtual machine (useful for debugging)')]
-	    [ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [switch]$NoDelete,
         
-		[Parameter(Mandatory=$true, HelpMessage='VM credential')]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory=$true, HelpMessage='VM credential')]
+        [ValidateNotNullOrEmpty()]
         [System.Management.Automation.PSCredential]$Credential
     )
 
@@ -653,26 +653,34 @@ Function Invoke-Automation() {
     }
 
     Write-Verbose -Message 'Started VM'
-	
-	Wait-VMSession -Name $vmTargetName -Credential $Credential
+
+    Wait-VMSession -Name $vmTargetName -Credential $Credential
 
     $session = New-PSSession -VMName $vmTargetName -Credential $Credential
-
-    $vmAddress = '{0}.{1}' -f $networkPrefix,(Get-Random -Minimum 20 -Maximum 250)
     
-    Invoke-Command -Session $session -ScriptBlock { Set-NetIPAddress -InterfaceIndex ((Get-NetAdapter).ifIndex) -IPAddress $Using:vmAddress -PrefixLength $Using:prefixLength }
+    # update cloned VM's IP address to a new address to prevent an IP address conflict with the template VM
+
+    $vmInterfaceIndex = Invoke-Command -Session $session -ScriptBlock { (Get-NetAdapter).ifIndex }
+
+    $currentVMAddress = Invoke-Command -Session $session -ScriptBlock { (Get-NetIPAddress -InterfaceIndex $Using:vmInterfaceIndex).IPAddress }
+
+    Invoke-Command -Session $session -ScriptBlock { Remove-NetIPAddress –InterfaceIndex $Using:vmInterfaceIndex –IPAddress $Using:currentVMAddress }
+
+    $newVMAddress = '{0}.{1}' -f $networkPrefix,(Get-Random -Minimum 20 -Maximum 250)
+
+    Invoke-Command -Session $session -ScriptBlock { New-NetIPAddress –InterfaceIndex $Using:vmInterfaceIndex –IPAddress $Using:newVMAddress -PrefixLength $Using:prefixLength -DefaultGateway $Using:natGatewayAddress }
 
     $osBitness = Invoke-Command -Session $session -ScriptBlock ${function:Get-OperatingSystemBitness}
 
-	#todo: set proxy based on bitness
+    #todo: set proxy based on bitness
 
     Invoke-Command -Session $session -ScriptBlock { New-Item -Path $Using:VMStagingPath -ItemType Directory -Force | Out-Null }
     Invoke-Command -Session $session -ScriptBlock { New-Item -Path $Using:VMResultPath -ItemType Directory -Force | Out-Null }
 
     Write-Verbose -Message 'Created folders in VM'
 
-	$vmWelmPath = "$VMStagingPath\welm"
-	
+    $vmWelmPath = "$VMStagingPath\welm"
+
     Copy-Item -ToSession $session -Path $HostStagingPath -Destination $vmWelmPath -Recurse
 
     Write-Verbose -Message ('Started feature install in VM at {0}' -f [System.DateTime]::Now)
@@ -708,14 +716,14 @@ Function Invoke-Automation() {
             Write-Verbose -Message 'Starting VM'
 
             Wait-VMStart -Name $vmTargetName
-			
-	        Wait-VMSession -Name $vmTargetName -Credential $Credential
+
+            Wait-VMSession -Name $vmTargetName -Credential $Credential
 
             if ((Get-VM -Name $vmTargetName).State -ne 'Running') {
                 throw "Could not start VM $vmTargetName"
             }
 
-            Write-Verbose -Message 'Started VM'			
+            Write-Verbose -Message 'Started VM'
         } 
 
         Get-PSSession | Remove-PSSession
@@ -726,15 +734,15 @@ Function Invoke-Automation() {
 
     Wait-VMSession -Name $vmTargetName -Credential $Credential
 
-    Write-Verbose -Message 'Waiting to allow time for VM to be ready before installing features'
-	Start-Sleep -Seconds 180 # unavoidable, ensure all the features have fully installed after reboot
-	
-	$session = New-PSSession -VMName $vmTargetName -Credential $Credential
-		
+    Write-Verbose -Message 'Waiting to allow time for VM to finish installing features'
+    Start-Sleep -Seconds 180 # unavoidable, ensure all the features have fully installed after reboot
+
+    $session = New-PSSession -VMName $vmTargetName -Credential $Credential
+
     #Invoke-Command -Session $session -ScriptBlock { Start-Process -FilePath 'cmd.exe' -ArgumentList '/c','C:\transfer\in\welm\welm.bat' -Wait }
     
-	Write-Verbose -Message ('Started WELM at {0}' -f [System.DateTime]::Now)
-	Invoke-Command -Session $session -ScriptBlock { Start-Process -FilePath ('{0}\welm.bat' -f $Using:vmWelmPath) -WorkingDirectory $Using:vmWelmPath -Wait } # WorkingDirectory is critical, otherwise execution context for welm.exe (int .bat file) is at C:\users\user\Documents in the VM
+    Write-Verbose -Message ('Started WELM at {0}' -f [System.DateTime]::Now)
+    Invoke-Command -Session $session -ScriptBlock { Start-Process -FilePath ('{0}\welm.bat' -f $Using:vmWelmPath) -WorkingDirectory $Using:vmWelmPath -Wait } # WorkingDirectory is critical, otherwise execution context for welm.exe (int .bat file) is at C:\users\user\Documents in the VM
     Write-Verbose -Message ('Finished WELM at {0}' -f [System.DateTime]::Now)
  
     Stop-Job -Job $preventSleepJob
