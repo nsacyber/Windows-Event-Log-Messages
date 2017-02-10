@@ -33,7 +33,15 @@ Param(
 
     [Parameter(Mandatory=$false, HelpMessage='Do not delete the cloned virtual machine (useful for debugging)')]
     [ValidateNotNullOrEmpty()]
-    [switch]$NoDelete
+    [switch]$NoDelete,
+
+    [Parameter(Mandatory=$false, HelpMessage='Disable Windows Update')]
+    [ValidateNotNullOrEmpty()]
+    [switch]$NoWindowsUpdate,
+
+    [Parameter(Mandatory=$false, HelpMessage='DNS server address(es)')]
+    [ValidateNotNullOrEmpty()]
+    [string[]]$DnsServer
 )
 
 #requires -version 4
@@ -511,7 +519,8 @@ Function Send-Keys() {
                 break
             }
 
-            [System.Windows.Forms.SendKeys]::SendWait(' ')
+            #[System.Windows.Forms.SendKeys]::SendWait(' ')
+            [System.Windows.Forms.SendKeys]::SendWait('{NUMLOCK}')
 
             Start-Sleep -Second $Frequency
             $count++
@@ -519,7 +528,7 @@ Function Send-Keys() {
     }
     End {
         # clear the command prompt of any characters sent
-        [System.Windows.Forms.SendKeys]::SendWait('{ESC}')    
+        #[System.Windows.Forms.SendKeys]::SendWait('{ESC}')    
     }      
 }
 
@@ -560,11 +569,22 @@ Function Invoke-Automation() {
         [Parameter(Mandatory=$false, HelpMessage='Do not delete the cloned virtual machine (useful for debugging)')]
         [ValidateNotNullOrEmpty()]
         [switch]$NoDelete,
+
+        [Parameter(Mandatory=$false, HelpMessage='Disable Windows Update')]
+        [ValidateNotNullOrEmpty()]
+        [switch]$NoWindowsUpdate,
+
+        [Parameter(Mandatory=$false, HelpMessage='DNS server address(es)')]
+        [ValidateNotNullOrEmpty()]
+        [string[]]$DnsServer,
         
         [Parameter(Mandatory=$true, HelpMessage='VM credential')]
         [ValidateNotNullOrEmpty()]
         [System.Management.Automation.PSCredential]$Credential
     )
+
+    $parameters = $PSBoundParameters
+
 
     if ($Credential.UserName.Length -eq 0) {
          throw 'Forgot to supply a VM username'
@@ -590,19 +610,19 @@ Function Invoke-Automation() {
     $natGatewayAddress = '{0}.1' -f $networkPrefix
     $natNetwork = '{0}.0/{1}' -f $networkPrefix,$prefixLength
 
-    if (@(Get-VMSwitch -Name $switchName).Count -eq 0) {
-        New-VMSwitch –SwitchName $switchName –SwitchType Internal
+    if (@(Get-VMSwitch -Name $switchName -ErrorAction SilentlyContinue ).Count -eq 0) {
+        New-VMSwitch –SwitchName $switchName –SwitchType Internal 
         Write-Verbose -Message ('Created VM switch {0}' -f $switchName)
     }
 
-    $index = (Get-NetAdapter -Name $aliasName).ifIndex
+    $hostInterfaceIndex = (Get-NetAdapter -Name $aliasName).ifIndex
 
-    if (@(Get-NetIPAddress –IPAddress $natGatewayAddress -InterfaceAlias $aliasName -InterfaceIndex $index).Count -eq 0) {
-        New-NetIPAddress –IPAddress $natGatewayAddress -PrefixLength $prefixLength -InterfaceAlias $aliasName -InterfaceIndex $index
+    if (@(Get-NetIPAddress –IPAddress $natGatewayAddress -InterfaceAlias $aliasName -InterfaceIndex $hostInterfaceIndex).Count -eq 0) {
+        New-NetIPAddress –IPAddress $natGatewayAddress -PrefixLength $prefixLength -InterfaceAlias $aliasName -InterfaceIndex $hostInterfaceIndex
         Write-Verbose -Message ('Created NAT gateway address {0}' -f $natGatewayAddress)
     }
 
-    if (@(Get-NetNat -Name $natNetworkName).Count -eq 0) {
+    if (@(Get-NetNat -Name $natNetworkName -ErrorAction SilentlyContinue).Count -eq 0) {
         # you can only have 1 NAT network, so if you get an exception with error 87, then run Get-NetNat | Remove-NetNat
         New-NetNat –Name $natNetworkName –InternalIPInterfaceAddressPrefix $natNetwork
         Write-Verbose -Message ('Created NAT {0}' -f $natNetworkName)
@@ -641,11 +661,11 @@ Function Invoke-Automation() {
 
     Write-Verbose -Message ('Connected switch {0} to VM' -f $switchName)
 
-    Start-VM -Name $vmTargetName
+    Start-VM -Name $vmTargetName -Verbose:$isVerbose
 
     Write-Verbose -Message 'Starting VM'
     
-    Wait-VMStart -Name $vmTargetName
+    Wait-VMStart -Name $vmTargetName -Verbose:$isVerbose
 
     # Start-VM silently failed because the cloned VM had a path to an ISO file as its CD/DVD drive and the VM service did not have permission to access where it was stored
     if ((Get-VM -Name $vmTargetName).State -ne 'Running') {
@@ -654,9 +674,13 @@ Function Invoke-Automation() {
 
     Write-Verbose -Message 'Started VM'
 
-    Wait-VMSession -Name $vmTargetName -Credential $Credential
+    Wait-VMSession -Name $vmTargetName -Credential $Credential -Verbose:$isVerbose
 
     $session = New-PSSession -VMName $vmTargetName -Credential $Credential
+
+    if ($session -eq $null) {
+        throw 'Unable to connect to VM. Ensure credentials are correct.'
+    }
     
     # update cloned VM's IP address to a new address to prevent an IP address conflict with the template VM
 
@@ -664,11 +688,51 @@ Function Invoke-Automation() {
 
     $currentVMAddress = Invoke-Command -Session $session -ScriptBlock { (Get-NetIPAddress -InterfaceIndex $Using:vmInterfaceIndex).IPAddress }
 
-    Invoke-Command -Session $session -ScriptBlock { Remove-NetIPAddress –InterfaceIndex $Using:vmInterfaceIndex –IPAddress $Using:currentVMAddress }
+    Invoke-Command -Session $session -ScriptBlock { Remove-NetIPAddress –InterfaceIndex $Using:vmInterfaceIndex –IPAddress $Using:currentVMAddress -Confirm:$false }
 
     $newVMAddress = '{0}.{1}' -f $networkPrefix,(Get-Random -Minimum 20 -Maximum 250)
 
-    Invoke-Command -Session $session -ScriptBlock { New-NetIPAddress –InterfaceIndex $Using:vmInterfaceIndex –IPAddress $Using:newVMAddress -PrefixLength $Using:prefixLength -DefaultGateway $Using:natGatewayAddress }
+    Invoke-Command -Session $session -ScriptBlock { New-NetIPAddress –InterfaceIndex $Using:vmInterfaceIndex –IPAddress $Using:newVMAddress -PrefixLength $Using:prefixLength }
+
+    $updatedVMAddress = Invoke-Command -Session $session -ScriptBlock { (Get-NetIPAddress -InterfaceIndex $Using:vmInterfaceIndex).IPAddress }
+
+    if ($updatedVMAddress -ne $newVMAddress) {
+        throw 'VM address was not updated'
+    }
+
+    Write-Verbose -Message ('Set VM IP address. Old address: {0} New address: {1} Interface index: {2}' -f $currentVMAddress,$newVMAddress,$vmInterfaceIndex)
+
+    # update gateway if needed
+
+    $routes = Invoke-Command -Session $session -ScriptBlock { (Get-NetRoute -InterfaceIndex $Using:vmInterfaceIndex) }
+
+    $gateway = $routes | Where-Object { $_.DestinationPrefix -eq '0.0.0.0/0' }
+
+    if ($gateway -eq $null) {
+        Invoke-Command -Session $session -ScriptBlock { New-NetRoute -DestinationPrefix '0.0.0.0/0' -NextHop $Using:natGatewayAddress -InterfaceIndex $Using:vmInterfaceIndex }
+    } else {
+        if ($gateway.NextHop -ne $natGatewayAddress) {
+            Invoke-Command -Session $session -ScriptBlock { Remove-NetRoute -DestinationPrefix '0.0.0.0/0' -InterfaceIndex $Using:vmInterfaceIndex }
+            Invoke-Command -Session $session -ScriptBlock { New-NetRoute -DestinationPrefix '0.0.0.0/0' -NextHop $Using:natGatewayAddress -InterfaceIndex $Using:vmInterfaceIndex }
+        }
+    }
+
+    # update DNS servers if needed
+
+    if ($parameters.ContainsKey('DnsServer')) {
+        #todo: check DNS servers first and only update if needed
+
+        Invoke-Command -Session $session -ScriptBlock { Set-DNSClientServerAddress –InterfaceIndex $Using:vmInterfaceIndex -ServerAddresses $using:DnsServer}
+
+        $currentDnsServer = Invoke-Command -Session $session -ScriptBlock { Get-DNSClientServerAddress –InterfaceIndex $Using:vmInterfaceIndex}
+
+        Write-Verbose -Message ('Set VM DNS address. {0}' -f ($currentDNSServer -join ','))
+    }
+
+    if($NoWindowsUpdate) {
+        Invoke-Command -Session $session -ScriptBlock { Set-ItemProperty -Path 'hklm:\Software\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update' -Name 'NoAutoUpdate' -Value 1 -Type 'DWORD' 
+        Invoke-Command -Session $session -ScriptBlock { Set-ItemProperty -Path 'hklm:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -Name 'NoAutoUpdate' -Value 1 -Type 'DWORD' }}
+    }
 
     $osBitness = Invoke-Command -Session $session -ScriptBlock ${function:Get-OperatingSystemBitness}
 

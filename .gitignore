@@ -6,3 +6,4 @@
 *.suo
 *.user
 *.zip
+**/launch.json
