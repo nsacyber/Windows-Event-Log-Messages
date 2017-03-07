@@ -2,7 +2,7 @@
 The Windows Event Log Messages (WELM) tool retrieves the definitions of Windows Event Log messages embedded in binaries. The tool's output can be used to create an exhaustive list of event information for the operating system. The tool was initially developed to aid in writing the [Spotting the Adversary with Windows Event Log Monitoring](https://www.iad.gov/iad/library/ia-guidance/security-configuration/applications/spotting-the-adversary-with-windows-event-log-monitoring.cfm) paper.
 
 ## Documentation
-See [Building WELM](.\docs\Building WELM.md) and [Running WELM](.\docs\Running WELM.md) for more information.
+See [Building WELM](./docs/Building WELM.md) and [Running WELM](./docs/Running WELM.md) for more information.
 
 ## Data
 Collected data is available in the [data folder](./docs/data) organized by operating system version and architecture. This data will grow over time. 
