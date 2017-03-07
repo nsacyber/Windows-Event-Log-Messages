@@ -278,7 +278,7 @@ namespace WelmLibrary
 
             if (s.EndsWith("|", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new [] { '|' });
+                s = s.TrimEnd('|');
             }
 
             return s;

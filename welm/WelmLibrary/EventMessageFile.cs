@@ -315,18 +315,17 @@ namespace WelmLibrary.Classic
 
                     // check if the message was stored as UNICODE or ANSI
                     // older versions of mc.exe stored strings as ANSI
-                    if (flags == AnsiFlag)
+                    switch (flags)
                     {
-                        message = Marshal.PtrToStringAnsi(new IntPtr(entries.ToInt32() + 4));
-                    }
-                    else if (flags == UnicodeFlag)
-                    {
-                        message = Marshal.PtrToStringUni(new IntPtr(entries.ToInt32() + 4));
-                    }
-                    else
-                    {
-                        Logger.Warn(CultureInfo.CurrentCulture, "MESSAGE_RESOURCE_ENTRY.Flags field should be 0 or 1 but was {0} in {1} so the event message will be empty", flags, Path);
-                        continue;
+                        case AnsiFlag:
+                            message = Marshal.PtrToStringAnsi(new IntPtr(entries.ToInt32() + 4));
+                            break;
+                        case UnicodeFlag:
+                            message = Marshal.PtrToStringUni(new IntPtr(entries.ToInt32() + 4));
+                            break;
+                        default:
+                            Logger.Warn(CultureInfo.CurrentCulture, "MESSAGE_RESOURCE_ENTRY.Flags field should be 0 or 1 but was {0} in {1} so the event message will be empty", flags, Path);
+                            continue;
                     }
 
                     EventId eventId = new EventId(id);

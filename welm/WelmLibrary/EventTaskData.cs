@@ -47,7 +47,7 @@ namespace WelmLibrary
         {
             if (!string.IsNullOrEmpty(name))
             {
-                Name = name.Contains(":") ? name.Split(new [] { ':' })[1] : name;
+                Name = name.Contains(":") ? name.Split(':')[1] : name;
             }
             else
             {

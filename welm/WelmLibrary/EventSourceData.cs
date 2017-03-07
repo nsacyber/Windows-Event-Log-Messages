@@ -315,7 +315,7 @@ namespace WelmLibrary.Classic
                             {
                                 csvWriter.WriteField<string>(source.Name);
                                 csvWriter.WriteField<string>(source.LogName);
-                                csvWriter.WriteField<string>(string.Join("; ", source.EventMessageFiles.ToArray().Select(f => f.FileName).ToArray()).Trim().TrimEnd(new [] { ';' }));
+                                csvWriter.WriteField<string>(string.Join("; ", source.EventMessageFiles.ToArray().Select(f => f.FileName).ToArray()).Trim().TrimEnd(';'));
                                 csvWriter.WriteField<string>(source.CategoryMessageFile);
                                 csvWriter.WriteField<string>(source.ParameterMessageFile);
                                 csvWriter.WriteField<Guid>(source.ProviderGuid);
@@ -346,7 +346,7 @@ namespace WelmLibrary.Classic
 
             if (EventMessageFiles.Any())
             {
-                output.AppendFormat("EventMessageFiles: {0}|", string.Join("; ", EventMessageFiles.ToArray().Select(f => f.FileName).ToArray()).Trim().TrimEnd(new [] { ';' }));
+                output.AppendFormat("EventMessageFiles: {0}|", string.Join("; ", EventMessageFiles.ToArray().Select(f => f.FileName).ToArray()).Trim().TrimEnd(';'));
             }
 
             if (!string.IsNullOrEmpty(CategoryMessageFile))
@@ -378,7 +378,7 @@ namespace WelmLibrary.Classic
 
             if (s.EndsWith("|", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new [] { '|' });
+                s = s.TrimEnd('|');
             }
 
             return s;

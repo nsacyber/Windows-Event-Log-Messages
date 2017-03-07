@@ -244,9 +244,9 @@ namespace WelmLibrary
                                 csvWriter.WriteField<string>(provider.MessageFile);
                                 csvWriter.WriteField<string>(provider.SubstitutionFile);
                                 csvWriter.WriteField<string>(provider.ResourceFile);
-                                csvWriter.WriteField<string>(string.Join(", ", provider.Levels.ToArray().Select(l => l.Name).ToArray()).Trim().TrimEnd(new [] { ',' })); // no header due to type mismatch for property
-                                csvWriter.WriteField<string>(string.Join(", ", provider.Keywords.ToArray().Select(k => k.Name).ToArray()).Trim().TrimEnd(new [] { ',' })); // no header due to type mismatch for property
-                                csvWriter.WriteField<string>(string.Join(", ", provider.SendsEventsTo.ToArray().Select(st => st.Name).ToArray()).Trim().TrimEnd(new [] { ',' })); // no header due to type mismatch for property
+                                csvWriter.WriteField<string>(string.Join(", ", provider.Levels.ToArray().Select(l => l.Name).ToArray()).Trim().TrimEnd(',')); // no header due to type mismatch for property
+                                csvWriter.WriteField<string>(string.Join(", ", provider.Keywords.ToArray().Select(k => k.Name).ToArray()).Trim().TrimEnd(',')); // no header due to type mismatch for property
+                                csvWriter.WriteField<string>(string.Join(", ", provider.SendsEventsTo.ToArray().Select(st => st.Name).ToArray()).Trim().TrimEnd(',')); // no header due to type mismatch for property
                                 csvWriter.NextRecord();
                             }
 
@@ -309,24 +309,24 @@ namespace WelmLibrary
 
             if (Levels != null && Levels.Count > 0)
             {
-                output.AppendFormat("Levels: {0}|", string.Join(", ", Levels.ToArray().Select(l => l.Name).ToArray()).Trim().TrimEnd(new [] { ',' }));
+                output.AppendFormat("Levels: {0}|", string.Join(", ", Levels.ToArray().Select(l => l.Name).ToArray()).Trim().TrimEnd(','));
             }
 
             if (Keywords != null && Keywords.Count > 0)
             {
-                output.AppendFormat("Keywords: {0}|", string.Join(", ", Keywords.ToArray().Select(k => k.Name).ToArray()).Trim().TrimEnd(new [] { ',' }));
+                output.AppendFormat("Keywords: {0}|", string.Join(", ", Keywords.ToArray().Select(k => k.Name).ToArray()).Trim().TrimEnd(','));
             }
 
             if (SendsEventsTo != null && SendsEventsTo.Count > 0)
             {
-                output.AppendFormat("SendsTo: {0}|", string.Join(", ", SendsEventsTo.ToArray().Select(st => st.Name).ToArray()).Trim().TrimEnd(new [] { ',' }));
+                output.AppendFormat("SendsTo: {0}|", string.Join(", ", SendsEventsTo.ToArray().Select(st => st.Name).ToArray()).Trim().TrimEnd(','));
             }
 
             string s = output.ToString().Trim();
 
             if (s.EndsWith("|", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new [] { '|' });
+                s = s.TrimEnd('|');
             }
 
             return s;

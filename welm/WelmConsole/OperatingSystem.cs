@@ -96,7 +96,7 @@ namespace WelmConsole
 
                             foreach (string part in productParts)
                             {
-                                UInt32 garbage = 0;
+                                UInt32 garbage;
 
                                 if (!UInt32.TryParse(part, out garbage))
                                 {
@@ -158,7 +158,7 @@ namespace WelmConsole
                             Int32 major = (Int32) currentKey.GetValue("CurrentMajorVersionNumber", 0);
                             Int32 minor = (Int32) currentKey.GetValue("CurrentMinorVersionNumber", 0);
 
-                            Int32 build = 0;
+                            Int32 build;
 
                             Int32.TryParse((string) currentKey.GetValue("CurrentBuild", ""), out build);
 
@@ -178,13 +178,13 @@ namespace WelmConsole
                         {
                             string currentVersion = (string) currentKey.GetValue("CurrentVersion", "");
 
-                            Int32 major = 0;
+                            Int32 major;
                             Int32.TryParse(currentVersion.Split('.')[0], out major);
 
-                            Int32 minor = 0;
+                            Int32 minor;
                             Int32.TryParse(currentVersion.Split('.')[1], out minor);
 
-                            Int32 build = 0;
+                            Int32 build;
 
                             Int32.TryParse((string) currentKey.GetValue("CurrentBuild", ""), out build);
 

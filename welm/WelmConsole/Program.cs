@@ -61,7 +61,7 @@ namespace WelmConsole
             Logger.Info(CultureInfo.CurrentCulture, "OS WELM ID: {0}", os.WelmId);
             Logger.Info(CultureInfo.CurrentCulture, "Command line arguments: {0}", string.Join(" ", args));
 
-            OutputFormat format = arguments.Format;
+            string format = arguments.Format;
 
             if (os.Version.Major >= 6)
             {
@@ -69,9 +69,9 @@ namespace WelmConsole
                 {
                     IList<EventLogData> logs = EventLogData.GetEventLogs();
 
-                    if (format != OutputFormat.All)
+                    if (format != "all")
                     {
-                        File.WriteAllText("logs." + format.ToString().ToLower(CultureInfo.CurrentCulture), EventLogData.ToFormat(logs, format.ToString()));
+                        File.WriteAllText("logs." + format.ToLower(CultureInfo.CurrentCulture), EventLogData.ToFormat(logs, format));
                     }
                     else
                     {
@@ -84,9 +84,9 @@ namespace WelmConsole
                 {
                     IList<EventProviderData> providers = EventProviderData.GetProviders();
 
-                    if (format != OutputFormat.All)
+                    if (format != "all")
                     {
-                        File.WriteAllText("providers." + format.ToString().ToLower(CultureInfo.CurrentCulture), EventProviderData.ToFormat(providers, format.ToString()));
+                        File.WriteAllText("providers." + format.ToLower(CultureInfo.CurrentCulture), EventProviderData.ToFormat(providers, format));
                     }
                     else
                     {
@@ -100,9 +100,9 @@ namespace WelmConsole
                 {
                     IList<EventData> events = EventData.GetEvents();
 
-                    if (format != OutputFormat.All)
+                    if (format != "all")
                     {
-                        File.WriteAllText("events." + format.ToString().ToLower(CultureInfo.CurrentCulture), EventData.ToFormat(events, format.ToString()));
+                        File.WriteAllText("events." + format.ToLower(CultureInfo.CurrentCulture), EventData.ToFormat(events, format));
                     }
                     else
                     {
@@ -123,9 +123,9 @@ namespace WelmConsole
                 {
                     classicEventLogs = ClassicEventLogData.GetEventLogs();
 
-                    if (format != OutputFormat.All)
+                    if (format != "all")
                     {
-                        File.WriteAllText("classiclogs." + format.ToString().ToLower(CultureInfo.CurrentCulture), ClassicEventLogData.ToFormat(classicEventLogs, format.ToString()));
+                        File.WriteAllText("classiclogs." + format.ToLower(CultureInfo.CurrentCulture), ClassicEventLogData.ToFormat(classicEventLogs, format));
                     }
                     else
                     {
@@ -146,9 +146,9 @@ namespace WelmConsole
                         eventLog.Sources = eventSources;
                     }
 
-                    if (format != OutputFormat.All)
+                    if (format != "all")
                     {
-                        File.WriteAllText("classicsources." + format.ToString().ToLower(CultureInfo.CurrentCulture), EventSourceData.ToFormat(eventSources, format.ToString()));
+                        File.WriteAllText("classicsources." + format.ToLower(CultureInfo.CurrentCulture), EventSourceData.ToFormat(eventSources, format));
                     }
                     else
                     {
@@ -175,9 +175,9 @@ namespace WelmConsole
                             classicEvents.Add(eventData);
                     }
 
-                    if (format != OutputFormat.All)
+                    if (format != "all")
                     {
-                        File.WriteAllText("classicevents." + format.ToString().ToLower(CultureInfo.CurrentCulture), ClassicEventData.ToFormat(classicEvents, format.ToString()));
+                        File.WriteAllText("classicevents." + format.ToLower(CultureInfo.CurrentCulture), ClassicEventData.ToFormat(classicEvents, format));
                     }
                     else
                     {

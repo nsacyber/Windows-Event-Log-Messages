@@ -1,6 +1,7 @@
 ﻿using DocoptNet;
-using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace WelmConsole
 {
@@ -14,7 +15,7 @@ namespace WelmConsole
 
         public bool Events => _args.ContainsKey("--events") && (bool.Parse(_args["--events"].ToString()));
 
-        public OutputFormat Format { get; private set; }
+        public string Format { get; private set; }
 
         public ParsedArguments(IDictionary<string, ValueObject> arguments)
         {
@@ -30,12 +31,11 @@ namespace WelmConsole
                 throw new DocoptExitException("No format specified");
             }
 
-            string rawFormat = _args["--format"].ToString();
-            OutputFormat format;
+            string format = _args["--format"].ToString().ToLower(CultureInfo.CurrentCulture);
 
-            if (!Enum.TryParse(rawFormat, true, out format))
+            if (!(new [] {"csv", "json", "txt", "all"}).Contains(format))
             {
-                throw new DocoptExitException("Invalid format of " + rawFormat);
+                throw new DocoptExitException("Invalid format of " + format);
             }
 
             Format = format;

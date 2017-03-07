@@ -55,12 +55,14 @@ namespace WelmLibrary.Classic
         /// <returns>The event message file at the specified location or NULL if it is not in the cache.</returns>
         public EventMessageFile Get(string path)
         {
-            if (!string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
-                if (_messageFiles.ContainsKey(path.ToLower(CultureInfo.CurrentCulture)))
-                {
-                    return _messageFiles[path.ToLower(CultureInfo.CurrentCulture)];
-                }
+                return null;
+            }
+
+            if (_messageFiles.ContainsKey(path.ToLower(CultureInfo.CurrentCulture)))
+            {
+                return _messageFiles[path.ToLower(CultureInfo.CurrentCulture)];
             }
 
             return null;
