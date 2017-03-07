@@ -2,7 +2,13 @@
 
 setlocal enabledelayedexpansion enableextensions
 
-if exist "%WINDIR%\System32\wevtutil.exe" (
+set WEVTPATH=%WINDIR%\System32\wevtutil.exe
+
+set PUBLISHERS=publishers.txt
+
+set PUBSERRORLOG=publishers_errors.txt
+
+if exist "%WEVTPATH%" (
 
     if exist publishers (
         rmdir /S /Q publishers
@@ -11,13 +17,20 @@ if exist "%WINDIR%\System32\wevtutil.exe" (
     mkdir publishers
     pushd publishers
 
-    wevtutil ep > publishers.txt
+    "%WEVTPATH%" ep >%PUBLISHERS%
+    move %PUBLISHERS% ..\ >nul
 
-    for /f "tokens=*" %%A in ('wevtutil ep') do (
+    for /f "tokens=*" %%A in ('"%WEVTPATH%" ep') do (
         set XML_FILENAME=%%A
         set XML_FILENAME=!XML_FILENAME:/=--!
-        wevtutil gp "%%A" /ge /gm:true /f:xml > "!XML_FILENAME!.xml"
+        "%WEVTPATH%" gp "%%A" /ge /gm:true /f:xml >"!XML_FILENAME!.xml" 2>>%PUBSERRORLOG%
+		
+        if !errorlevel! neq 0 (
+            echo wevtutil returned error code !errorlevel! when running wevutil gp on '%%A'. see above line for details. >>%PUBSERRORLOG%
+        )
     )
+	
+    move %PUBSERRORLOG% ..\ >nul	
 
     popd
 )

@@ -11,37 +11,37 @@ namespace WelmLibrary
         /// <summary>
         /// The raw bitmask value.
         /// </summary>
-        public long Bitmask { get; set; }
+        public long Bitmask { get; }
 
         /// <summary>
         /// Specifies whether the bitmask contain a Success event level.
         /// </summary>
-        public bool IsSuccess { get; set; }
+        public bool IsSuccess { get; }
 
         /// <summary>
         /// Specifies whether the bitmask contain an Error event level.
         /// </summary>
-        public bool IsError { get; set; }
+        public bool IsError { get; }
 
         /// <summary>
         /// Specifies whether the bitmask contain a Warning event level.
         /// </summary>
-        public bool IsWarning { get; set; }
+        public bool IsWarning { get; }
 
         /// <summary>
         /// Specifies whether the bitmask contain an Information event level.
         /// </summary>
-        public bool IsInformation { get; set; }
+        public bool IsInformation { get; }
 
         /// <summary>
         /// Specifies whether the bitmask contain an Audit Success event level.
         /// </summary>
-        public bool IsSuccessAudit { get; set; }
+        public bool IsSuccessAudit { get; }
 
         /// <summary>
         /// Specifies whether the bitmask contain an Audit Failure event level.
         /// </summary>
-        public bool IsFailAudit { get; set; }
+        public bool IsFailAudit { get; }
 
         /// <summary>
         /// Creates a new bitmask based on the passed in raw value.
@@ -99,7 +99,7 @@ namespace WelmLibrary
 
             if (s.EndsWith(",", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new char[] { ',' });
+                s = s.TrimEnd(new [] { ',' });
             }
 
             return s;

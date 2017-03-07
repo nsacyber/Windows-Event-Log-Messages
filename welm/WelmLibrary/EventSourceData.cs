@@ -25,42 +25,42 @@ namespace WelmLibrary.Classic
         /// <summary>
         /// The name of the source.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
         /// The name of the log for this source.
         /// </summary>
-        public string LogName { get; set; }
+        public string LogName { get; }
 
         /// <summary>
         /// The event message files specified in this source.
         /// </summary>
-        public IList<EventMessageFile> EventMessageFiles { get; set; }
+        public IList<EventMessageFile> EventMessageFiles { get; }
 
         /// <summary>
         /// The category message file for this source.
         /// </summary>
-        public string CategoryMessageFile { get; set; }
+        public string CategoryMessageFile { get; }
 
         /// <summary>
         /// The substituation parameter message file for this source.
         /// </summary>
-        public string ParameterMessageFile { get; set; }
+        public string ParameterMessageFile { get; }
 
         /// <summary>
         /// The provider GUID for this source.
         /// </summary>
-        public Guid ProviderGuid { get; set; }
+        public Guid ProviderGuid { get; }
 
         /// <summary>
         /// The event levels used by this source.
         /// </summary>
-        public EventTypeBitMask EventLevels { get; set; }
+        public EventTypeBitMask EventLevels { get; }
 
         /// <summary>
         /// The number of categories.
         /// </summary>
-        public Int32 CategoryCount { get; set; }
+        public Int32 CategoryCount { get; }
 
         /// <summary>
         /// Creates a new event source by parsing certain registry value names for the source.
@@ -154,7 +154,7 @@ namespace WelmLibrary.Classic
                 eventMessageFiles = eventMessageFiles.Replace("%windir%", winDirPath);
                 eventMessageFiles = eventMessageFiles.Replace("$(runtime.system32)", Environment.GetFolderPath(Environment.SpecialFolder.System)); //seen on Windows 8+ for WinHttpAutoProxySvc
 
-                foreach (string messageFilePath in eventMessageFiles.Split(new string[] {";"}, StringSplitOptions.RemoveEmptyEntries))
+                foreach (string messageFilePath in eventMessageFiles.Split(new [] {";"}, StringSplitOptions.RemoveEmptyEntries))
                 {
                     // can't directly modify messageFilePath since it is part of the foreach
                     string modifiedMessageFilePath = messageFilePath.Trim();
@@ -183,7 +183,7 @@ namespace WelmLibrary.Classic
                     }
                     else
                     {
-                        string[] messageFilePaths = modifiedMessageFilePath.Split(new string[] {@"\"}, StringSplitOptions.RemoveEmptyEntries);
+                        string[] messageFilePaths = modifiedMessageFilePath.Split(new [] {@"\"}, StringSplitOptions.RemoveEmptyEntries);
 
                         if (messageFilePaths.Length > 0)
                         {
@@ -315,7 +315,7 @@ namespace WelmLibrary.Classic
                             {
                                 csvWriter.WriteField<string>(source.Name);
                                 csvWriter.WriteField<string>(source.LogName);
-                                csvWriter.WriteField<string>(string.Join("; ", source.EventMessageFiles.ToArray().Select(f => f.FileName).ToArray()).Trim().TrimEnd(new char[] { ';' }));
+                                csvWriter.WriteField<string>(string.Join("; ", source.EventMessageFiles.ToArray().Select(f => f.FileName).ToArray()).Trim().TrimEnd(new [] { ';' }));
                                 csvWriter.WriteField<string>(source.CategoryMessageFile);
                                 csvWriter.WriteField<string>(source.ParameterMessageFile);
                                 csvWriter.WriteField<Guid>(source.ProviderGuid);
@@ -346,7 +346,7 @@ namespace WelmLibrary.Classic
 
             if (EventMessageFiles.Any())
             {
-                output.AppendFormat("EventMessageFiles: {0}|", string.Join("; ", EventMessageFiles.ToArray().Select(f => f.FileName).ToArray()).Trim().TrimEnd(new char[] { ';' }));
+                output.AppendFormat("EventMessageFiles: {0}|", string.Join("; ", EventMessageFiles.ToArray().Select(f => f.FileName).ToArray()).Trim().TrimEnd(new [] { ';' }));
             }
 
             if (!string.IsNullOrEmpty(CategoryMessageFile))
@@ -378,7 +378,7 @@ namespace WelmLibrary.Classic
 
             if (s.EndsWith("|", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new char[] { '|' });
+                s = s.TrimEnd(new [] { '|' });
             }
 
             return s;

@@ -15,12 +15,12 @@ namespace WelmLibrary
         /// <summary>
         /// The keyword name.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
         /// The keyword value.
         /// </summary>
-        public long Value { get; set; }
+        public long Value { get; }
 
         /// <summary>
         /// Gets a list of keywords based on the specified metadata.
@@ -53,12 +53,6 @@ namespace WelmLibrary
             }
 
             return keywordData;
-        }
-
-        public EventKeywordData()
-        {
-            Name = string.Empty;
-            Value = 0L;
         }
 
         /// <summary>

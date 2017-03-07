@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace WelmLibrary.Classic
@@ -30,7 +29,7 @@ namespace WelmLibrary.Classic
         /// <summary>
         /// The events specified in the file.
         /// </summary>
-        private IList<ClassicEventData> Events { get; set; }
+        private IList<ClassicEventData> Events { get; }
 
         /// <summary>
         /// Whether or not events were retrieved from the file.
@@ -40,32 +39,22 @@ namespace WelmLibrary.Classic
         /// <summary>
         /// The file name.
         /// </summary>
-        public string FileName { get; set; }
+        public string FileName { get; }
 
         /// <summary>
         /// The name of the log the event message file is for.
         /// </summary>
-        public string LogName { get; set; }
+        public string LogName { get; }
 
         /// <summary>
         /// The name of the source the event message file is for.
         /// </summary>
-        public string SourceName { get; set; }
+        public string SourceName { get; }
 
         /// <summary>
         /// The file path.
         /// </summary>
-        public string Path { get; set; }
-
-        public EventMessageFile()
-        {
-            LogName = string.Empty;
-            SourceName = string.Empty;
-            FileName = string.Empty;
-            Path = string.Empty;
-            Events = new List<ClassicEventData>();
-            EventsEnumerated = false;
-        }
+        public string Path { get; private set; }
 
         /// <summary>
         /// Creates an event message file data based on file name and file path.
@@ -197,15 +186,6 @@ namespace WelmLibrary.Classic
                 NativeMethods.FreeLibrary(hModule);
             }
             return Events;
-        }
-
-        /// <summary>
-        /// Gets the number of events found in the event message file.
-        /// </summary>
-        /// <returns>The number of events found in the event message file.</returns>
-        public int NumberOfEvents()
-        {
-            return EventsEnumerated ? Events.Count : GetEvents().Count();
         }
 
         /// <summary>

@@ -18,37 +18,37 @@ namespace WelmLibrary
         /// <summary>
         /// Severity of the event. Not to be confused with the Level column in the Event Log Viewer. Severity of the NTSTATUS.
         /// </summary>
-        public string Severity { get; set; }
+        public string Severity { get; }
 
         /// <summary>
         /// Specifies if the value is customer or Microsoft defined. It is true for customer values and false for Microsoft values.
         /// </summary>
-        public bool IsCustomer { get; set; }
+        public bool IsCustomer { get; }
 
         /// <summary>
         /// Must be false for Microsoft values.
         /// </summary>
-        public bool IsReserved { get; set; }
+        public bool IsReserved { get; }
 
         /// <summary>
         /// Indicates the system service responsible for the error.
         /// </summary>
-        public string Facility { get; set; }
+        public string Facility { get; }
 
         /// <summary>
         /// The last 4 bytes of the Value which is what is corresponds to value in the Event ID column in the Event Log Viewer.
         /// </summary>
-        public ushort Code { get; set; }
+        public ushort Code { get; }
 
         /// <summary>
         /// The original value.
         /// </summary>
-        public long Value { get; set; }
+        public long Value { get; }
 
         /// <summary>
         /// The event ID interpreted as an NTSTATUS.
         /// </summary>
-        private NtStatus NtStatus { get; set; }
+        private NtStatus NtStatus { get; }
 
         public EventId()
         {

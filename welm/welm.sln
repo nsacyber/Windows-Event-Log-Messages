@@ -7,6 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WelmConsole", "WelmConsole\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02E91588-2312-455C-B3C6-380FE8ED8476}"
 	ProjectSection(SolutionItems) = preProject
+		Automate-WELM.ps1 = Automate-WELM.ps1
 		dumplogs.bat = dumplogs.bat
 		dumppublishers.bat = dumppublishers.bat
 		Get-Facilities.ps1 = Get-Facilities.ps1

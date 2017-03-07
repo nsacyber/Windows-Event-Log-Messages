@@ -2,7 +2,13 @@
 
 setlocal enabledelayedexpansion enableextensions
 
-if exist "%WINDIR%\System32\wevtutil.exe" (
+set WEVTPATH=%WINDIR%\System32\wevtutil.exe
+
+set LOGS=logs.txt
+
+set LOGSERRORLOG=logs_errors.txt
+
+if exist "%WEVTPATH%" (
 
     if exist logs (
         rmdir /S /Q logs
@@ -11,13 +17,20 @@ if exist "%WINDIR%\System32\wevtutil.exe" (
     mkdir logs
     pushd logs
 
-    wevtutil el > logs.txt
+    "%WEVTPATH%" el >%LOGS%
+    move %LOGS% ..\ >nul
 
-    for /f "tokens=*" %%A in ('wevtutil el') do (
+    for /f "tokens=*" %%A in ('"%WEVTPATH%" el') do (
         set XML_FILENAME=%%A
         set XML_FILENAME=!XML_FILENAME:/=--!
-        wevtutil gl "%%A" /f:xml > "!XML_FILENAME!.xml"
+        "%WEVTPATH%" gl "%%A" /f:xml >"!XML_FILENAME!.xml" 2>>%LOGSERRORLOG%
+		
+        if !errorlevel! neq 0 (
+            echo wevtutil returned error code !errorlevel! when running wevutil gl on '%%A'. see above line for details. >>%LOGSERRORLOG%
+        )
     )
+	
+    move %LOGSERRORLOG% ..\ >nul
 
     popd
 )

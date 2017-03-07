@@ -279,7 +279,7 @@ Function Invoke-InstallFeatures() {
 
         $returnValue = [pscustomobject]@{
             NeedsReboot = $false;
-            NeedsInstall = $true;
+            NeedsInstall = $false;
             Log = $logData;
         }
 

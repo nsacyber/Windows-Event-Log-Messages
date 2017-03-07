@@ -42,42 +42,42 @@ namespace WelmLibrary
         /// <summary>
         /// The event provider that the event is associated with.
         /// </summary>
-        public string Provider { get; set; }
+        public string Provider { get; }
 
         /// <summary>
         /// The event number that corresponds to the Event ID column seen in the Event Viewer.
         /// </summary>
-        public EventId Id { get; set; }
+        public EventId Id { get; }
 
         /// <summary>
         /// The event level that corresponds to the Level column seen in the Event Viewer. Generally these are Error, Informational, Warning, Critical, or Verbose.
         /// </summary>
-        public EventLevelData Level { get; set; }
+        public EventLevelData Level { get; }
 
         /// <summary>
         /// The version number of the event.
         /// </summary>
-        public byte Version { get; set; }
+        public byte Version { get; }
 
         /// <summary>
         /// The event task generally gives more specific information about which component is logging information.
         /// </summary>
-        public EventTaskData Task { get; set; }
+        public EventTaskData Task { get; }
 
         /// <summary>
         /// The event opcode generally gives information about an action being done when logging information.
         /// </summary>
-        public EventOpcodeData Opcode { get; set; }
+        public EventOpcodeData Opcode { get; }
 
         /// <summary>
         /// Event keywords are used to classify or group similar types of events. 
         /// </summary>
-        public IList<EventKeywordData> Keywords { get; private set; }
+        public IList<EventKeywordData> Keywords { get; }
 
         /// <summary>
         /// The event log/channel that the event is logged to.
         /// </summary>
-        public EventLogData LoggedTo { get; set; }
+        public EventLogData LoggedTo { get; }
 
         /// <summary>
         /// The event's message string. It contains substition variables for its parameters, if any. Some events do not have a description.
@@ -87,21 +87,7 @@ namespace WelmLibrary
         /// <summary>
         /// A list of parameter names and types used in the event message. These are ordered in the list according to their substitution position. The position is 1-based.
         /// </summary>
-        public OrderedDictionary Parameters { get; private set; }
-
-        public EventData()
-        {
-            Provider = string.Empty;
-            Id = new EventId();
-            Level = new EventLevelData();
-            Version = 0;
-            Task = new EventTaskData();
-            Opcode = new EventOpcodeData();
-            Keywords = new List<EventKeywordData>();
-            LoggedTo = new EventLogData();
-            Message = string.Empty;
-            Parameters = new OrderedDictionary();
-        }
+        public OrderedDictionary Parameters { get; }
 
         /// <summary>
         /// Creates event data associated with a specific provider with the specified event metadata.
@@ -344,7 +330,7 @@ namespace WelmLibrary
 
             if (s.EndsWith("|", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new char[] { '|' });
+                s = s.TrimEnd(new [] { '|' });
             }
 
             return s;
@@ -467,7 +453,7 @@ namespace WelmLibrary
             {
                 paramNumber++;
 
-                string[] parts = parameters[key].ToString().Split(new string[] { "," }, StringSplitOptions.None);
+                string[] parts = parameters[key].ToString().Split(new [] { "," }, StringSplitOptions.None);
 
                 output.Append("%" + paramNumber + "=" + parts[0]);
                 output.Append("(" + parts[1] + ")");
@@ -478,7 +464,7 @@ namespace WelmLibrary
 
             if (s.EndsWith(",", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new char[] { ',' });
+                s = s.TrimEnd(new [] { ',' });
             }
 
             return s;
@@ -497,14 +483,9 @@ namespace WelmLibrary
             {
                 foreach (EventKeywordData keyword in keywords)
                 {
-                    if (string.IsNullOrEmpty(keyword.Name))
-                    {
-                        output.Append(string.Format(CultureInfo.CurrentCulture, "0x{0:X}", keyword.Value));
-                    }
-                    else
-                    {
-                        output.Append(keyword.Name);
-                    }
+                    output.Append(string.IsNullOrEmpty(keyword.Name)
+                        ? string.Format(CultureInfo.CurrentCulture, "0x{0:X}", keyword.Value)
+                        : keyword.Name);
 
                     output.Append(", ");
                 }
@@ -514,7 +495,7 @@ namespace WelmLibrary
 
             if (s.EndsWith(",", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new char[] { ',' });
+                s = s.TrimEnd(new [] { ',' });
             }
 
             return s;

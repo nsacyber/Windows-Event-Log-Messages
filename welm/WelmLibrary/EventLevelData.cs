@@ -11,12 +11,12 @@ namespace WelmLibrary
         /// <summary>
         /// The event level name.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
         /// The event level value.
         /// </summary>
-        public int Value { get; set; }
+        public int Value { get; }
 
         public EventLevelData()
         {

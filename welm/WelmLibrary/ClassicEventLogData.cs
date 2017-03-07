@@ -24,7 +24,7 @@ namespace WelmLibrary.Classic
         /// <summary>
         /// The name of the event log.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
         /// The list of event sources registered for the event log. 

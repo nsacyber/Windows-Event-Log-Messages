@@ -11,22 +11,22 @@ namespace WelmLibrary
         /// <summary>
         /// The event task name.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
         /// The event task message.
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; }
 
         /// <summary>
         /// The event task value.
         /// </summary>
-        public int Value { get; set; }
+        public int Value { get; }
 
         /// <summary>
         /// The event task GUID.
         /// </summary>
-        public Guid Guid { get; set; }
+        public Guid Guid { get; }
 
         public EventTaskData()
         {
@@ -47,7 +47,7 @@ namespace WelmLibrary
         {
             if (!string.IsNullOrEmpty(name))
             {
-                Name = name.Contains(":") ? name.Split(new char[] { ':' })[1] : name;
+                Name = name.Contains(":") ? name.Split(new [] { ':' })[1] : name;
             }
             else
             {

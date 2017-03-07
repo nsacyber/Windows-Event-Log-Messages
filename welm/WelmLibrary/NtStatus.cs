@@ -8,32 +8,32 @@ namespace WelmLibrary
         /// <summary>
         /// The severity level associated with the NTSTATUS.
         /// </summary>
-        public NtSeverity Severity { get; set; }
+        public NtSeverity Severity { get; }
 
         /// <summary>
         /// Specifies whether the customer bit is set. Will always be 0 (false) for Microsoft code.
         /// </summary>
-        public bool IsCustomer { get; set; }
+        public bool IsCustomer { get; }
 
         /// <summary>
         /// Specifies whether the reserved bit is set. Willl be 0 (false) for NSTATUS values (and Microsoft code). If set, then value can be translated to an HRESULT code.
         /// </summary>
-        public bool IsReserved { get; set; }
+        public bool IsReserved { get; }
 
         /// <summary>
         /// The facility value associated with the NTSTATUS. The facility specifies optional information about what component the NTSTATUS applies to.
         /// </summary>
-        public uint Facility { get; set; }
+        public uint Facility { get; }
 
         /// <summary>
         /// The code portion of the NTSTATUS. The code is what is associated with the Event ID column in the Event Viewer.
         /// </summary>
-        public ushort Code { get; set; }
+        public ushort Code { get; }
 
         /// <summary>
         /// The original value of the NTSTATUS.
         /// </summary>
-        public long Value { get; set; }
+        public long Value { get; }
 
         public NtStatus()
         {

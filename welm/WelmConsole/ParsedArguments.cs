@@ -6,7 +6,7 @@ namespace WelmConsole
 {
     public class ParsedArguments
     {
-        private readonly IDictionary<string, ValueObject> _args = null;
+        private readonly IDictionary<string, ValueObject> _args;
 
         public bool Providers => _args.ContainsKey("--providers") && (bool.Parse(_args["--providers"].ToString()));
 
@@ -33,7 +33,7 @@ namespace WelmConsole
             string rawFormat = _args["--format"].ToString();
             OutputFormat format;
 
-            if (!Enum.TryParse<OutputFormat>(rawFormat, true, out format))
+            if (!Enum.TryParse(rawFormat, true, out format))
             {
                 throw new DocoptExitException("Invalid format of " + rawFormat);
             }

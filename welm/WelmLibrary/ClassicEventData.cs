@@ -14,30 +14,22 @@ namespace WelmLibrary.Classic
         /// <summary>
         /// The event log that the event is associated with.
         /// </summary>
-        public string Log { get; set; }
+        public string Log { get; }
 
         /// <summary>
         /// The source that the event is associated with.
         /// </summary>
-        public string Source { get; set; }
+        public string Source { get; }
 
         /// <summary>
         /// The event ID.
         /// </summary>
-        public EventId Id { get; set; }
+        public EventId Id { get; }
 
         /// <summary>
         /// The event's message string. It contains substition variables for its parameters if it has any. Some events do not have a message.
         /// </summary>
         public string Message { get; set; }
-
-        public ClassicEventData()
-        {
-            Log = string.Empty;
-            Source = string.Empty;
-            Id = new EventId();
-            Message = string.Empty;
-        }
 
         /// <summary>
         /// Creates event data associated with a specific log with the specified ID and message.
@@ -145,7 +137,7 @@ namespace WelmLibrary.Classic
 
             if (s.EndsWith("|", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new char[] { '|' });
+                s = s.TrimEnd(new [] { '|' });
             }
 
             return s;

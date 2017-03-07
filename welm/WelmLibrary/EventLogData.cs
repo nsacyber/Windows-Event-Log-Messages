@@ -8,7 +8,6 @@ using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.AccessControl;
 using System.Text;
 
 namespace WelmLibrary
@@ -20,65 +19,65 @@ namespace WelmLibrary
         /// <summary>
         /// The name of the event log.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
         /// The owning event provider name that creates the log.
         /// </summary>
 
-        public string Provider { get; set; }
+        public string Provider { get; }
         /// <summary>
         /// Maximum log size in kilobytes.
         /// </summary>
-        public long MaximumSize { get; set; }
+        public long MaximumSize { get; }
 
         /// <summary>
         /// The log retention policy. It can Circular, AutoBackup, or Retain.
         /// <see cref="System.Diagnostics.Eventing.Reader.EventLogIsolation"/>
         /// </summary>
-        public string Retention { get; set; }
+        public string Retention { get; }
 
         /// <summary>
         /// Specifies if the log is enabled or not.
         /// </summary>
-        public bool IsEnabled { get; set; }
+        public bool IsEnabled { get; }
 
         /// <summary>
         /// Specifies if the log metadata was defined with a .mc file manifest or an XML file manifest. The .mc file is the classic format.
         /// </summary>
-        public bool IsClassic { get; set; }
+        public bool IsClassic { get; }
 
         /// <summary>
         /// The type of log file. It can be Administrative, Operational, Analytical, or Debug.
         /// <see cref="System.Diagnostics.Eventing.Reader.EventLogType"/>
         /// </summary>
-        public string LogType { get; set; }
+        public string LogType { get; }
 
         /// <summary>
         /// The security isolation of the log file. It can be Application, System, or Custom.
         /// <see cref="System.Diagnostics.Eventing.Reader.EventLogIsolation"/>
         /// </summary>
-        public string Isolation { get; set; }
+        public string Isolation { get; }
 
         /// <summary>
         /// For a debug type log this will be a GUID to identify the log. The is null GUID when it is not a debug log type.
         /// </summary>
-        public Guid DebugGuid { get; set; }
+        public Guid DebugGuid { get; }
 
         /// <summary>
         /// The names of providers that can publish information to this log.
         /// </summary>
-        public IList<string> Providers { get; private set; }
+        public IList<string> Providers { get; }
 
         /// <summary>
         /// The path of the file that log stores its data.
         /// </summary>
-        public string FilePath { get; set; }
+        public string FilePath { get; }
 
         /// <summary>
         /// The security descriptor in SDDL format.
         /// </summary>
-        public string SecurityDescriptor { get; set; }
+        public string SecurityDescriptor { get; }
         //public RawSecurityDescriptor SecurityDescriptor { get; set; } //causes events.json to triple in size
 
         public EventLogData()
@@ -279,7 +278,7 @@ namespace WelmLibrary
 
             if (s.EndsWith("|", true, CultureInfo.CurrentCulture))
             {
-                s = s.TrimEnd(new char[] { '|' });
+                s = s.TrimEnd(new [] { '|' });
             }
 
             return s;

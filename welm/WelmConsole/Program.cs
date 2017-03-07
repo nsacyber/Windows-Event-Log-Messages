@@ -54,22 +54,20 @@ namespace WelmConsole
                 Environment.Exit((int)ProcessCode.CommandLineInvalid);
             }
 
-            Logger.Info(CultureInfo.CurrentCulture, "WELM version: {0}", fileVersion.FileVersion);
+            OperatingSystem os = new OperatingSystem();
+
+            Logger.Info(CultureInfo.CurrentCulture, "WELM Version: {0}", fileVersion.FileVersion);
+            Logger.Info(CultureInfo.CurrentCulture, "OS Version: {0} Release ID: {1} Service Pack: {2} Edition: {3} Name: {4} Architecture: {5}", os.Version, os.ReleaseId, os.ServicePack, os.Edition, os.Name, os.Architecture);
+            Logger.Info(CultureInfo.CurrentCulture, "OS WELM ID: {0}", os.WelmId);
             Logger.Info(CultureInfo.CurrentCulture, "Command line arguments: {0}", string.Join(" ", args));
 
             OutputFormat format = arguments.Format;
 
-            OperatingSystem os = Environment.OSVersion;
-
             if (os.Version.Major >= 6)
             {
-                IList<EventLogData> logs = new List<EventLogData>();
-                IList<EventProviderData> providers = new List<EventProviderData>();
-                IList<EventData> events = new List<EventData>();
-
                 if (arguments.Logs)
                 {
-                    logs = EventLogData.GetEventLogs();
+                    IList<EventLogData> logs = EventLogData.GetEventLogs();
 
                     if (format != OutputFormat.All)
                     {
@@ -84,7 +82,7 @@ namespace WelmConsole
                 }
                 else if (arguments.Providers)
                 {
-                    providers = EventProviderData.GetProviders();
+                    IList<EventProviderData> providers = EventProviderData.GetProviders();
 
                     if (format != OutputFormat.All)
                     {
@@ -100,7 +98,7 @@ namespace WelmConsole
                 }
                 else if (arguments.Events)
                 {
-                    events = EventData.GetEvents();
+                    IList<EventData> events = EventData.GetEvents();
 
                     if (format != OutputFormat.All)
                     {
@@ -193,14 +191,9 @@ namespace WelmConsole
 
         private static void HandleCurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            string message;
-
             Exception exception = e.ExceptionObject as Exception;
 
-            if (exception == null)
-                message = "The application encountered an unknown unhandled exception.";
-            else
-                message = string.Format(CultureInfo.CurrentCulture, "The application encountered an unhandled exception: {0}{1}{2}", exception.Message, Environment.NewLine, exception.StackTrace);
+            string message = exception == null ? "The application encountered an unknown unhandled exception." : string.Format(CultureInfo.CurrentCulture, "The application encountered an unhandled exception: {0}{1}{2}", exception.Message, Environment.NewLine, exception.StackTrace);
 
             Logger.Fatal(exception, message);
             Environment.Exit((int)ProcessCode.UnhandledException);
