@@ -119,31 +119,64 @@
   <PropertyGroup>
     <PostBuildEvent>setlocal
 
-if "$(ConfigurationName)"=="Debug" goto end
+if "$(ConfigurationName)"=="Debug" goto debug
 
-if exist "$(SolutionDir)\dist" (
-   rmdir /s /q "$(SolutionDir)\dist"
+if "$(ConfigurationName)"=="Release" goto release
+
+:debug
+
+if exist "$(SolutionDir)\dist\debug" (
+   rmdir /s /q "$(SolutionDir)\dist\debug"
+)
+
+mkdir "$(SolutionDir)\dist\debug"
+
+copy "$(TargetDir)*.dll" "$(SolutionDir)\dist\debug" /y
+copy "$(TargetDir)*.exe" "$(SolutionDir)\dist\debug" /y
+
+del "$(SolutionDir)\dist\debug\*.vshost.exe"
+
+if exist "$(TargetDir)NLog.config" (
+    copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\debug\NLog.config" /y
+)
+
+if exist "$(SolutionDir)\Install-Features.ps1" (
+    copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\debug\Install-Features.ps1" /y
+)
+
+if exist "$(SolutionDir)\welm.bat" (
+    copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\debug\welm.bat" /y
+)
+
+goto end
+
+:release
+
+if exist "$(SolutionDir)\dist\release" (
+    rmdir /s /q "$(SolutionDir)\dist\release"
 ) 
 
 set ILMERGE_PATH=$(SolutionDir)\packages\ILMerge.2.14.1208\tools\ilmerge.exe
 
 if exist "%25ILMERGE_PATH%25" (
-   mkdir "$(SolutionDir)\dist"
+    mkdir "$(SolutionDir)\dist\release"
 
-   start /wait "" "%25ILMERGE_PATH%25" $(TargetFileName) WelmLibrary.dll DocoptNet.dll NLog.dll CsvHelper.dll Newtonsoft.Json.dll /lib:"$(TargetDir)\"  /target:exe /out:"$(SolutionDir)\dist\welm.exe" /ndebug
+    start /wait "" "%25ILMERGE_PATH%25" $(TargetFileName) WelmLibrary.dll DocoptNet.dll NLog.dll CsvHelper.dll Newtonsoft.Json.dll /lib:"$(TargetDir)\"  /target:exe /out:"$(SolutionDir)\dist\release\welm.exe" /ndebug
 
-   if exist "$(TargetDir)NLog.config" (
-      copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\NLog.config" /y
-   )
+    if exist "$(TargetDir)NLog.config" (
+        copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\release\NLog.config" /y
+    )
 
-   if exist "$(SolutionDir)\Install-Features.ps1" (
-      copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\Install-Features.ps1" /y
-   )
+    if exist "$(SolutionDir)\Install-Features.ps1" (
+        copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\release\Install-Features.ps1" /y
+    )
 
-   if exist "$(SolutionDir)\welm.bat" (
-      copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\welm.bat" /y
-   )
+    if exist "$(SolutionDir)\welm.bat" (
+        copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\release\welm.bat" /y
+    )
 )
+
+goto end
 
 :end</PostBuildEvent>
   </PropertyGroup>

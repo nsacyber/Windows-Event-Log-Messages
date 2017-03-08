@@ -62,7 +62,15 @@ if exist "%WEVTPATH%" (
     popd
 )
 
-set WELMPATH=%~dp0%\welm.exe
+set WELMPATH=.
+
+if exist "%~dp0%\welm.exe" (
+    set WELMPATH=%~dp0%\welm.exe
+)
+
+if exist "%~dp0%\WelmConsole.exe" (
+    set WELMPATH=%~dp0%\WelmConsole.exe
+)
 
 if exist welm (
     rmdir /S /Q welm
