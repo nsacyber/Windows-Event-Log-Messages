@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="OperatingSystem.cs" />
     <Compile Include="ParsedArguments.cs" />
     <Compile Include="Program.cs" />
@@ -131,21 +132,22 @@ if exist "$(SolutionDir)\dist\debug" (
 
 mkdir "$(SolutionDir)\dist\debug"
 
-copy "$(TargetDir)*.dll" "$(SolutionDir)\dist\debug" /y
-copy "$(TargetDir)*.exe" "$(SolutionDir)\dist\debug" /y
+copy "$(TargetDir)*.dll" "$(SolutionDir)\dist\debug" /y &gt;nul
+copy "$(TargetDir)*.exe" "$(SolutionDir)\dist\debug" /y &gt;nul
+copy "$(TargetDir)*.pdb" "$(SolutionDir)\dist\debug" /y &gt;nul
 
 del "$(SolutionDir)\dist\debug\*.vshost.exe"
 
 if exist "$(TargetDir)NLog.config" (
-    copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\debug\NLog.config" /y
+    copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\debug\NLog.config" /y &gt;nul
 )
 
 if exist "$(SolutionDir)\Install-Features.ps1" (
-    copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\debug\Install-Features.ps1" /y
+    copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\debug\Install-Features.ps1" /y &gt;nul
 )
 
 if exist "$(SolutionDir)\welm.bat" (
-    copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\debug\welm.bat" /y
+    copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\debug\welm.bat" /y &gt;nul
 )
 
 goto end
@@ -164,15 +166,15 @@ if exist "%25ILMERGE_PATH%25" (
     start /wait "" "%25ILMERGE_PATH%25" $(TargetFileName) WelmLibrary.dll DocoptNet.dll NLog.dll CsvHelper.dll Newtonsoft.Json.dll /lib:"$(TargetDir)\"  /target:exe /out:"$(SolutionDir)\dist\release\welm.exe" /ndebug
 
     if exist "$(TargetDir)NLog.config" (
-        copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\release\NLog.config" /y
+        copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\release\NLog.config" /y &gt;nul
     )
 
     if exist "$(SolutionDir)\Install-Features.ps1" (
-        copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\release\Install-Features.ps1" /y
+        copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\release\Install-Features.ps1" /y &gt;nul
     )
 
     if exist "$(SolutionDir)\welm.bat" (
-        copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\release\welm.bat" /y
+        copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\release\welm.bat" /y &gt;nul
     )
 )
 

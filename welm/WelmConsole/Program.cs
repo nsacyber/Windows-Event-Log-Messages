@@ -189,6 +189,11 @@ namespace WelmConsole
             }
         }
 
+        /// <summary>
+        /// Logs unhandled exceptions as a fatal log entry.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static void HandleCurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Exception exception = e.ExceptionObject as Exception;

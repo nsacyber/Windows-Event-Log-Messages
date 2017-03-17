@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Runtime.InteropServices;
 
 namespace WelmLibrary.Classic
@@ -6,11 +7,9 @@ namespace WelmLibrary.Classic
     /// <summary>
     /// The documentation for all these functions and structures can be looked up in MSDN.
     /// </summary>
-    internal class NativeMethods
+    [GeneratedCode("Brain", "1.0")]
+    public static class NativeMethods
     {
-        private NativeMethods()
-        {}
-
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hReservedNull, uint dwFlags);
 

@@ -1,4 +1,8 @@
-# Usage and examples
+# Running WELM
+
+WELM requires administrative rights to retrieve all event information. Specifically it needs administrative rights to get event information about the Security log, its related providers, and its events.
+
+## Usage and examples
 ~~~
     Usage:
         welm.exe -h 
@@ -13,18 +17,18 @@
 ~~~
 
 
-Running **welm.exe -p -f all** will retrieve all provider data in all supported formats. 
+Running **welm.exe -p -f all** retrieves all provider data in all supported formats. 
 
-Running **welm.exe -l -f all** will retrieve all log data in all supported formats. 
+Running **welm.exe -l -f all** retrieves all log data in all supported formats. 
 
-Running **welm.exe -e -f all** will retrieve all event data in all supported formats. 
+Running **welm.exe -e -f all** retrieves all event data in all supported formats. 
 
 Instead of using **all**, you can retrieve data in specific formats:
 * **-f txt**
 * **-f json**
 * **-f csv**
 
-# Output
+## Output
 Running WELM results in the following files being generated:
 
 * **classicevents.txt**/**.json**/**.csv** - Contains metadata for classic style events. Available for Windows XP and later.
@@ -37,59 +41,176 @@ Running WELM results in the following files being generated:
 
 **"Classic style" versus "new style"**. The "new style" metadata is retrieved using Windows event log APIs introduced in Windows Vista  with the new event log system often referred to by its codename of Crimson. The "classic style" metadata is retrieved from the Windows registry for log metadata and source metadata and from text resources embedded in binaries for event metadata. 
 
-Some of the classic style events are just normal strings (UI text elements, etc) that are embedded in the binary. Unfortunately there isn't a reliable way to differentiate between an event text string and a normal text string (that is used for other uses) that doesn't result in losing legitimate event text strings. The new style event data does not have this problem.
+Some of the classic style events are just normal strings (UI text elements, etc) that are embedded in the binary. Unfortunately there isn't a reliable way to differentiate between an event text string and a normal text string (that's used for other uses) that doesn't result in losing legitimate event text strings. The new style event data does not have this problem.
 
-# Running WELM
+# Retrieving data
+This section describes how to maximize the amount of collected event information.
 
-Once you have [built WELM](./Building WELM.md), copy the files from the dist folder to a virtual machine. Install all features and roles in the operating system before running WELM to get the most complete output. This document describes how to do that for each major Windows operating system release starting with Windows XP.
+## Host system preparation
 
-WELM requires administrative rights to retrieve all event information. Specifically it needs administrative rights to get event information about the Security log, its related providers, and its events.
+What you need:
+1. A compiled debug or release version of WELM (see [Building WELM](./Building WELM.md)).
+1. A host system running Windows 10 1607 or later (required for [PowerShell Direct](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/powershell-direct) [persistent session](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/powershell-direct#copy-files-with-new-pssession-and-copy-item) and NAT switch support).
+1. Hyper-V installed on the host system.
+1. A Hyper-V [NAT switch](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/setup-nat-network) if you want the system to access the Internet to install patches from Windows Update.
+1. A .iso file containing installation media for Enterprise Edition (x86 and x64) for desktop systems and Datacenter or Enterprise Edition for server systems.
 
-## Retrieving data
+## Virtual machine preparation
 
-Below are the generic steps for retrieving data with WELM.
+Operating system specific instructions below.
 
-1. Create virtual machines for the x86 and x64 versions of the operating system. Use Enterprise Edition since it has features that other editions of Windows do not.
-1. Install WELM prerequisites (.Net 4.0) in the virtual machine for any OSes that don't have it (Windows 8.1 and earlier).
-1. Enable all features in Windows either manually (XP, 2003, Vista, Server 2008) or with the provided Install-Features.ps1 PowerShell script (Windows 7/Server 2008 R2 and later). 
-1. On server editions of the operating system, install all roles and run dcpromo to allow retrieving of all possible events.
-1. Copy welm.exe, welm.bat, NLog.config, and Install-Features.ps1 to the virtual machine.
-1. Open a PowerShell administrator prompt, dot source (e.g. **. .\\Install-Features.ps1**) the [Install-Features.ps1](..\welm\Install-Features.ps1) script, and then run **Invoke-InstallFeatures -Verbose**
-1. Open an administrator command prompt and run welm.bat.
-1. Copy the generated data out of the virtual machine.
-1. Run **New-Statistics -Path 'C:\path to folder containing retrieved data'** from the Get-Statistics.ps1 file to generate statistics files based on the data.
-
-If using a Windows 10/Windows Server 2016 host and guest OS, then you can use the [Automate-WELM.ps1](..\welm\Automate-WELM.ps1] script to perform all tasks once a virtual machine has been created.
-
-You can find operating system specific instructions below:
-
+Desktops:
 * [Windows XP SP3](#windows-xp)
+* [Windows Vista SP2](#windows-vista)
+* [Windows 7 SP1](#windows-7)
+* [Windows 8](#windows-8)
+* [Windows 8.1](#windows-81)
+* [Windows 8.1 Update](#windows-81-update)
+* [Windows 10 1507](#windows-10-1507)
+* [Windows 10 1511](#windows-10-1511) 
+* [Windows 10 1607 and later](#windows-10-1607-and-later)
+
+Servers:
 * [Windows Server 2003 R2 SP1](#windows-server-2003)
-* [Windows Vista SP2/Windows Server 2008 R2](#windows-vistawindows-server-2008)
-* [Windows 7/Windows Server 2008 R2](#windows-7windows-server-2008-r2)
-* [Windows 8/Windows Server 2012](#windows-8windows-server-2012)
-* [Windows 8.1/Windows Server 2012 R2](#windows-81windows-server-2012-r2)
-* [Windows 10 1507 and later/Windows Server 2016](#windows-10-1507-and-laterwindows-server2016)
+* [Windows Server 2008 SP2](#windows-server-2008)
+* [Windows Server 2008 R2 SP1](#windows-server-2008-r2)
+* [Windows Server 2012](#windows-server-2012)
+* [Windows Server 2012 R2](#windows-server-2012-r2)
+* [Windows Server 2016](#windows-server2016)
 
+### Desktops
 
-### Windows XP
+#### Windows XP
 
-1. Create a VM
-1. Take a snapshot
-1. Right click the avhdx file and mount it.
-1. Copy the .Net 3.5 SP1 installer (dotnetfx35sp1full.exe) from into the mounted image.
-1. Copy \WELM into the mounted image.
-1. Right click the avhdx file and unmount it.
-1. Right click on the VM in Hyper-V and select Settings. Under IDE Controller 1 where it says DVD Drive, select the Image File option in the right pane. Click the Browse button and browse to the ISO and click Open. Click OK.
-1. Start the VM. In the VM go to Start > Settings > Control Panel. Click Switch to Classic View. Select Add or Remove Programs. Click Add/Remove Windows Components. Select all the components and click Next. Browse to the drive that was just assigned the XP SP3 image to. Click Finish.
-1. Open a command prompt as Administrator and run welm.bat
+1. Create a virtual machine (VM) and install the operating system using the .iso installation media. DO NOT connect it to a virtual switch. Make sure the .iso installation media is mounted as a DVD drive in the VM settings.
 1. Shutdown the VM.
-1. Mount the avhdx file. Copy the output (classicevents.*, classiclogs.*, classicsources.*, *.log) to to the local system. Unmount the avhdx file.
+1. Find the .vhdx file on the host system that represents the VM's hard drive.
+1. Right click on the .vhdx file and select **Mount**. The drive root should open in Windows Explorer.
+1. Browse the path of **\\Documents and Settings\\user\\Desktop\\** of the VM drive (click **Yes** at the security prompt).
+1. Copy the **dist** folder from inside the **welm** folder of the GitHub repository folder to the Desktop of the VM drive and close the Windows Explorer window for the VM drive.
+1. Browse to **This PC** in Windows Explorer on the host system, right click the drive letter (probably D or E) that corresponds to the VM drive and select **Eject**.
+1. Power on the VM.
+1. Login to the VM.
+1. **Start** > **Control Panel**.
+2. Click **Switch to Classic View**.
+1. Select **Add or Remove Programs**.
+1. Click **Add/Remove Windows Components**.
+1. Make sure all features have a check mark with a white background next to them rather than check mark with a gray background. If the background is gray, then select the feature and click the **Details** button. Repeat this for all features AND sub-features.
+1. Click **Next**.
+1. Click **Finish**.
+1. Reboot the system.
+1. Install .Net 4.0.
+1. Open an administrator command prompt.
+1. Type **cd C:\Documents and Settings\user\Desktop\dist\release** and press **Enter**. 
+1. Type **welm.bat** and press **Enter**. It should take 10-15 minutes to complete.
+1. Open one of the welm.yyyyMMddHHmms_info.txt log files and copy the WELM ID from the third line of the file. Create a new folder on the Desktop using the WELM ID as the name.
+1. Copy the contents of the **wevtutil** and **welm** folders, that are inside the **Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
+1. Make sure there are no welm.yyyyMMddHHmms_fatal.txt log files. If there is, then run welm.bat from the dist\debug\ folder and open an issue in the WELM GitHub repository. Add the contents of the file, or attach it, to the issue.
+1. Shutdown the VM.
+1. Find the .vhdx file on the host system that represents the VM's hard drive.
+1. Right click on the .vhdx file and select Mount. The drive root should open in Windows Explorer.
+1. Browse the path of **\\Documents and Settings\\user\\Desktop\\** of the VM drive.
+1. Copy the WELM ID folder from inside the VM drive to the host system and close the Windows Explorer window for the VM drive. 
+1. Browse to **This PC** in Windows Explorer on the host system, right click the drive letter (probably D or E) that corresponds to the VM drive and select **Eject**.
 
+#### Windows Vista
 
-Windows XP 64-bit needed file system redirection temporarily disabled in some cases since sysnative does not exist until Vista. Could've installed KB942859 and see what happens but P\Invoked Wow64DisableWow64FsRedirection and Wow64RevertWow64FsRedirection instead.
+While it may be possible to script installation of all features with pkgmgr and/or ocsetup, it is easy to select all the features manually in the UI. 
 
-### Windows Server 2003
+1. Create a virtual machine (VM) and install the operating system using the .iso installation media. DO NOT connect it to a virtual switch. Make sure the .iso installation media is mounted as a DVD drive in the VM settings.
+1. Shutdown the VM.
+1. Find the .vhdx file on the host system that represents the VM's hard drive.
+1. Right click on the .vhdx file and select **Mount**. The drive root should open in Windows Explorer.
+1. Browse the path of **\\users\\user\\Desktop\\** of the VM drive (click **Yes** at the security prompt).
+1. Copy the **dist** folder from inside the **welm** folder of the GitHub repository folder to the Desktop of the VM drive and close the Windows Explorer window for the VM drive.
+1. Browse to **This PC** in Windows Explorer on the host system, right click the drive letter (probably D or E) that corresponds to the VM drive and select **Eject**.
+1. Power on the VM.
+1. Login to the VM.
+1. **Start** > **Control Panel** > **Programs** > **Turn Windows Features on or off**. 
+1. Make sure all features have a check mark next to them rather than a filled in square.
+1. Reboot the system.
+1. Install .Net 4.0.
+1. Open an administrator command prompt.
+1. Type **cd C:\\users\\user\\Desktop\\dist\\release** and press **Enter**. 
+1. Type **welm.bat** and press **Enter**. It should take 10-15 minutes to complete.
+1. Open one of the welm.yyyyMMddHHmms_info.txt log files and copy the WELM ID from the third line of the file. Create a new folder on the Desktop using the WELM ID as the name.
+1. Copy the contents of the **wevtutil** and **welm** folders, that are inside the **Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
+1. Make sure there are no welm.yyyyMMddHHmms_fatal.txt log files. If there is, then run welm.bat from the dist\debug\ folder and open an issue in the WELM GitHub repository and add the contents of the file, or attach it, to the issue.
+1. Shutdown the VM.
+1. Find the .vhdx file on the host system that represents the VM's hard drive.
+1. Right click on the .vhdx file and select **Mount**. The drive root should open in Windows Explorer.
+1. Browse the path of **\\users\\user\\Desktop\\** of the VM drive.
+1. Copy the WELM ID folder from inside the VM drive to the host system and close the Windows Explorer window for the VM drive. 
+1. Browse to **This PC** in Windows Explorer on the host system, right click the drive letter (probably D or E) that corresponds to the VM drive and select **Eject**.
+
+#### Windows 7
+
+Instructions are the same for Windows 8 except make sure you install the [.Net Framework 4.0](https://www.microsoft.com/en-us/download/details.aspx?id=17718).
+
+The OEMHelpCustomization and CorporateHelpCustomization features fail to install with an error of 1603.
+
+#### Windows 8
+
+1. Create a virtual machine (VM) and install the operating system using the .iso installation media. DO NOT connect it to a virtual switch. Make sure the .iso installation media is mounted as a DVD drive in the VM settings.
+1. Shutdown the VM.
+1. Find the .vhdx file on the host system that represents the VM's hard drive.
+1. Right click on the .vhdx file and select **Mount**. The drive root should open in Windows Explorer.
+1. Browse the path of **\\users\\user\\Desktop\\** of the VM drive (click **Yes** at the security prompt).
+1. Copy the **dist** folder from inside the **welm** folder of the GitHub repository folder to the Desktop of the VM drive and close the Windows Explorer window for the VM drive.
+1. Browse to **This PC** in Windows Explorer on the host system, right click the drive letter (probably D or E) that corresponds to the VM drive and select **Eject**.
+1. Power on the VM.
+1. Login to the VM.
+1. Open an administrator command prompt.
+1. Type **cd C:\users\user\Desktop\dist\release** and press **Enter**.
+1. Type **powershell.exe** and press **Enter**.
+1. Type **Set-ExecutionPolicy Unrestricted** and press **Enter**.
+1. Type **. .\Install-Features.ps1** and press Enter.
+1. Type **$result=Invoke-InstallFeatures -Verbose** and press **Enter**.
+1. Once the script has completed, type **$result** and press **Enter**.
+1. If **NeedsReboot** is true, then restart the system.
+1. If **NeedsInstall** is true, then run the script again after the system reboots. Repeat this until NeedsInstall is false.
+1. Reboot the VM if needed and then login to the VM.
+1. Open an administrator command prompt.
+1. Type **cd C:\users\user\Desktop\dist\release** and press **Enter**. 
+1. Type **welm.bat** and press **Enter**. It should take 10-15 minutes to complete.
+1. Open one of the welm.yyyyMMddHHmms_info.txt log files and copy the WELM ID from the third line of the file. Create a new folder on the Desktop using the WELM ID as the name.
+1. Copy the contents of the **wevtutil** and **welm** folders, that are inside the **Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
+1. Make sure there are no welm.yyyyMMddHHmms_fatal.txt log files. If there is, then run welm.bat from the dist\debug\ folder and open an issue in the WELM GitHub repository and add the contents of the file, or attach it, to the issue.
+1. Shutdown the VM.
+1. Find the .vhdx file on the host system that represents the VM's hard drive.
+1. Right click on the .vhdx file and select **Mount**. The drive root should open in Windows Explorer.
+1. Browse the path of **\\users\\user\\Desktop\\** of the VM drive.
+1. Copy the WELM ID folder from inside the VM drive to the host system and close the Windows Explorer window for the VM drive. 
+1. Browse to **This PC** in Windows Explorer on the host system, right click the drive letter (probably D or E) that corresponds to the VM drive and select **Eject**. 
+
+#### Windows 8.1
+
+Follow the instructions in the Windows 8 section. 
+
+#### Windows 8.1 Update
+
+Follow the instructions in the Windows 8 section. You will need to rename the output folder to differentiate it from Windows 8.1 without the update. Insert \_u\_ between "8.1" and "enterprise"
+
+#### Windows 10 1507
+
+Follow the instructions in the Windows 8 section. 
+
+#### Windows 10 1511
+
+Follow the instructions in the Windows 8 section. 
+
+#### Windows 10 1607 and later
+Starting with Windows 10 1607, the [Automate-WELM.ps1](..\welm\Automate-WELM.ps1) script is provided to automate retrieval of data generated by WELM. The host must be at least Windows 10 1607 with Hyper-V installed and the guest must be Windows 10 1607 or later since the script uses PowerShell Direct ([1](https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/user_guide/vmsession), [2](https://technet.microsoft.com/en-us/windows-server-docs/compute/hyper-v/manage/manage-windows-virtual-machines-with-powershell-direct)).
+
+Create a template virtual machine that can be cloned by the script. The virtual machine should have Internet access OR a Windows installation DVD inserted into its virtual DVD drive. Run the following command on the host as an administrator:
+
+```
+powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1607 Enterprise x64" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1607 Enterprise x64" -HostCodePath "C:\users\user\Desktop" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" -Verbose
+```
+
+### Servers
+
+#### Windows Server 2003
 
 Same as Windows XP steps. Put junk values in everything when components are installed. Don't install Certificate Services until after running dcpromo because it will ask to uninstall it. Right click on the VM and give it a valid network adapter and connection. This is temporarily required mainly for dcpromo but it helps for IIS too.
 
@@ -116,27 +237,18 @@ Also install the other parts as mentioned above (Server for NIS, Application Ser
 
 Run welm.
 
-### Windows Vista/Windows Server 2008
-
-1. While it is possible to script setup with pkgmgr and/or ocsetup, they are not ideal. It is much faster to select all the features manually in the UI. Make sure all items have a check mark rather than a filled in square.
-
-1. Start > Settings > Control Panel > Programs > Turn Windows Features on or off. On the server it brings up the Roles and Features dialog. Install all the features possible and reboot. There will only be two sub-items that can't install: Message Queuing > Message Queuing Services > Routing Support and Message Queuing > Windows 2000 Client Support.
+#### Windows Server 2008
+On the server it brings up the Roles and Features dialog. Install all the features possible and reboot. There will only be two sub-items that can't install: Message Queuing > Message Queuing Services > Routing Support and Message Queuing > Windows 2000 Client Support.
 1. Install .Net 3.5.
 1. Install all roles except for Active Directory ones. WSUS won't install from Server Manager. Install WSUS 3.0 SP2 (SP1 is what would normally come with Server 2008 so SP2 is good enough).
 1. Install Active Directory Domain Services. Run dcpromo.
 1. Install the remaining AD roles (create a user in AD for AD RMS to install and use the server's fqdn as the RMS federation server name and cluster server name).
 1. Go back to Add Features and install Message Queuing > Message Queuing Services > Routing Support.  The other sub item (Message Queuing > Windows 2000 Client Support)  will not install.
-1. Run welm.
-
+1. Run welm. 
 
 Can't install Hyper-V on x64 while already inside a Hyper-V VM. Server 2008 SP2 has to be installed on physical hardware in order to get those logs.
 
-### Windows 7/Windows Server 2008 R2
-
-Net 3.5 is already installed by default on Windows 7. 
-
-1. Set-ExecutionPolicy Unrestricted -Force
-1. Run the install all features script and reboot.
+#### Windows Server 2008 R2
 
 On server add roles.
 
@@ -147,33 +259,3 @@ Can't install ADFS > FS Proxy, File Services > Windows Server 2003 File Services
 
 Install remaining features that are listed as Disabled at the very end. Run the script. After reboot everything will have to be done by keyboard but that's easy since all that's left is running welm.bat.
 
-### Windows 8/Windows Server 2012
-
-To install .Net 3.5 on an internet disconnected Windows 8 system, insert the Windows 8 ISO into the virtual drive and then run this command: dism /online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:D:\sources\sxs The /Source path will vary based on which drive letter was assigned to the drive that contains the Windows image.
-
-Run the install all features script and reboot.
-
-Check all features are installed. If not, run the script again and reboot.
-
-### Windows 8.1/Windows Server 2012 R2
-
-Same as Windows 8/Server 2012.
-
-
-Give it a network card in the Hyper-V settings.
-In the VM change it to a static IP.
-Remove Active Directory Certificate Services' Certification Authority sub option only. It needs to be removed because dcpromo doesn't want it. Do this from the Turn Windows Features on or off
-Go to Server Manager > AD DS > click the More... link in the light yellow bar thingy. Click the Promote this server to a domain controller link under the Action column. Follow the steps to create a new domain.
-Install the Certification Authority sub option again.
-
-
-To collect all the events that are possible, run WELM on physical machines for any edition of Windows that supports Hyper-V. For servers, this is obvious. For non-servers, this applies to Windows 8 and later since Enterprise Edition supports client Hyper-V. Can't install Hyper-V into a virtual machine (at least not in a Hyper-V VM). The script appears to install Hyper-V even when it is in a VM.
-
-### Windows 10 1507 and later/Windows Server 2016
-Starting with Windows 10 the [Automate-WELM.ps1](..\welm\Automate-WELM.ps1) script is provided to automate retrieval of data generated by WELM. The host must be at least Windows 10 1507 with Hyper-V installed and the guest must be Windows 1507 or later since the script uses PowerShell Direct ([1](https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/user_guide/vmsession), [2](https://technet.microsoft.com/en-us/windows-server-docs/compute/hyper-v/manage/manage-windows-virtual-machines-with-powershell-direct)).
-
-Create a template virtual machine that can be cloned by the script. The virtual machine should have internet access OR a Windows installation DVD inserted into its virtual DVD drive. Run the following command on the host as an administrator:
-
-```
-powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1607 Enterprise x64" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1607 Enterprise x64" -HostCodePath "C:\users\user\Desktop" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" -Verbose
-```

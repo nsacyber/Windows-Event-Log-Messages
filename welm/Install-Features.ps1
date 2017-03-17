@@ -212,6 +212,8 @@ Function Get-WindowsMediaPath() {
 Function Invoke-InstallFeatures() {
     [CmdletBinding()]
     Param()
+    
+    $functionStart = [System.DateTime]::Now
 
     $log = New-Object System.Text.StringBuilder
 
@@ -236,11 +238,18 @@ Function Invoke-InstallFeatures() {
 
         $logData = $log.ToString()
 
+        $functionEnd = [System.DateTime]::Now
+        
+        $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)
+        
         $returnValue = [pscustomobject]@{
             NeedsReboot = $false;
             NeedsInstall = $false; # no way to automate install on this OS
             Log = $logData;
+            Elapsed = $functionTimespan;
         }
+        
+        return $returnValue
     }
 
     $connected = Test-InternetConnection
@@ -255,12 +264,19 @@ Function Invoke-InstallFeatures() {
             [void]$log.AppendLine($message)
 
             $logData = $log.ToString()
+            
+            $functionEnd = [System.DateTime]::Now
 
+            $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)
+            
             $returnValue = [pscustomobject]@{
                 NeedsReboot = $false;
                 NeedsInstall = $true;
                 Log = $logData;
+                Elapsed = $functionTimespan;
             }
+            
+            return $returnValue
         }
     }
   
@@ -276,11 +292,16 @@ Function Invoke-InstallFeatures() {
         [void]$log.AppendLine($message)
 
         $logData = $log.ToString()
+        
+        $functionEnd = [System.DateTime]::Now
+
+        $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)        
 
         $returnValue = [pscustomobject]@{
             NeedsReboot = $false;
             NeedsInstall = $false;
             Log = $logData;
+            Elapsed = $functionTimespan;
         }
 
         return $returnValue
@@ -306,10 +327,15 @@ Function Invoke-InstallFeatures() {
 
         $logData = $log.ToString()
 
+        $functionEnd = [System.DateTime]::Now
+
+        $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)
+        
         $returnValue = [pscustomobject]@{
             NeedsReboot = $true;
             NeedsInstall = $true;
             Log = $logData;
+            Elapsed = $functionTimespan;
         }
 
         return $returnValue
@@ -319,7 +345,7 @@ Function Invoke-InstallFeatures() {
 
     $features = $features.Split([Environment]::NewLine,[System.StringSplitOptions]::RemoveEmptyEntries)
 
-    for ($i=7; $i -lt $features.Count-2; $i++) {
+    for ($i=7; $i -lt $features.Count-1; $i++) {
         $message = ''
 
         $indexOfBar = $features[$i].indexof('|')
@@ -407,11 +433,16 @@ Function Invoke-InstallFeatures() {
     }
 
     $logData = $log.ToString()
+    
+    $functionEnd = [System.DateTime]::Now
+
+    $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)
 
     $returnValue = [pscustomobject]@{
         NeedsReboot = $needsReboot;
         NeedsInstall = $needsInstall;
         Log = $logData;
+        Elapsed = $functionTimespan;
     }
 
     return $returnValue
