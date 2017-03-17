@@ -59,7 +59,7 @@ What you need:
 
 Operating system specific instructions below.
 
-Desktops:
+[Desktops](#desktops):
 * [Windows XP SP3](#windows-xp)
 * [Windows Vista SP2](#windows-vista)
 * [Windows 7 SP1](#windows-7)
@@ -70,7 +70,7 @@ Desktops:
 * [Windows 10 1511](#windows-10-1511) 
 * [Windows 10 1607 and later](#windows-10-1607-and-later)
 
-Servers:
+[Servers](#servers):
 * [Windows Server 2003 R2 SP1](#windows-server-2003)
 * [Windows Server 2008 SP2](#windows-server-2008)
 * [Windows Server 2008 R2 SP1](#windows-server-2008-r2)
@@ -104,18 +104,18 @@ Servers:
 1. Type **cd C:\Documents and Settings\user\Desktop\dist\release** and press **Enter**. 
 1. Type **welm.bat** and press **Enter**. It should take 10-15 minutes to complete.
 1. Open one of the welm.yyyyMMddHHmms_info.txt log files and copy the WELM ID from the third line of the file. Create a new folder on the Desktop using the WELM ID as the name.
-1. Copy the contents of the **wevtutil** and **welm** folders, that are inside the **Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
+1. Copy the contents of the **welm** folders, that is inside the **\\Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
 1. Make sure there are no welm.yyyyMMddHHmms_fatal.txt log files. If there is, then run welm.bat from the dist\debug\ folder and open an issue in the WELM GitHub repository. Add the contents of the file, or attach it, to the issue.
 1. Shutdown the VM.
 1. Find the .vhdx file on the host system that represents the VM's hard drive.
-1. Right click on the .vhdx file and select Mount. The drive root should open in Windows Explorer.
+1. Right click on the .vhdx file and select **Mount**. The drive root should open in Windows Explorer.
 1. Browse the path of **\\Documents and Settings\\user\\Desktop\\** of the VM drive.
 1. Copy the WELM ID folder from inside the VM drive to the host system and close the Windows Explorer window for the VM drive. 
 1. Browse to **This PC** in Windows Explorer on the host system, right click the drive letter (probably D or E) that corresponds to the VM drive and select **Eject**.
 
 #### Windows Vista
 
-While it may be possible to script installation of all features with pkgmgr and/or ocsetup, it is easy to select all the features manually in the UI. 
+While it may be possible to script installation of all features with pkgmgr and/or ocsetup, it is easy and not very time consuming to select all the features manually in the user interface. 
 
 1. Create a virtual machine (VM) and install the operating system using the .iso installation media. DO NOT connect it to a virtual switch. Make sure the .iso installation media is mounted as a DVD drive in the VM settings.
 1. Shutdown the VM.
@@ -134,7 +134,7 @@ While it may be possible to script installation of all features with pkgmgr and/
 1. Type **cd C:\\users\\user\\Desktop\\dist\\release** and press **Enter**. 
 1. Type **welm.bat** and press **Enter**. It should take 10-15 minutes to complete.
 1. Open one of the welm.yyyyMMddHHmms_info.txt log files and copy the WELM ID from the third line of the file. Create a new folder on the Desktop using the WELM ID as the name.
-1. Copy the contents of the **wevtutil** and **welm** folders, that are inside the **Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
+1. Copy the contents of the **wevtutil** and **welm** folders, that are inside the **\\Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
 1. Make sure there are no welm.yyyyMMddHHmms_fatal.txt log files. If there is, then run welm.bat from the dist\debug\ folder and open an issue in the WELM GitHub repository and add the contents of the file, or attach it, to the issue.
 1. Shutdown the VM.
 1. Find the .vhdx file on the host system that represents the VM's hard drive.
@@ -145,7 +145,7 @@ While it may be possible to script installation of all features with pkgmgr and/
 
 #### Windows 7
 
-Instructions are the same for Windows 8 except make sure you install the [.Net Framework 4.0](https://www.microsoft.com/en-us/download/details.aspx?id=17718).
+Instructions are the same for [Windows 8](#windows-8) except make sure you install the [.Net Framework 4.0](https://www.microsoft.com/en-us/download/details.aspx?id=17718).
 
 The OEMHelpCustomization and CorporateHelpCustomization features fail to install with an error of 1603.
 
@@ -164,7 +164,7 @@ The OEMHelpCustomization and CorporateHelpCustomization features fail to install
 1. Type **cd C:\users\user\Desktop\dist\release** and press **Enter**.
 1. Type **powershell.exe** and press **Enter**.
 1. Type **Set-ExecutionPolicy Unrestricted** and press **Enter**.
-1. Type **. .\Install-Features.ps1** and press Enter.
+1. Type **. .\Install-Features.ps1** and press **Enter**.
 1. Type **$result=Invoke-InstallFeatures -Verbose** and press **Enter**.
 1. Once the script has completed, type **$result** and press **Enter**.
 1. If **NeedsReboot** is true, then restart the system.
@@ -174,7 +174,7 @@ The OEMHelpCustomization and CorporateHelpCustomization features fail to install
 1. Type **cd C:\users\user\Desktop\dist\release** and press **Enter**. 
 1. Type **welm.bat** and press **Enter**. It should take 10-15 minutes to complete.
 1. Open one of the welm.yyyyMMddHHmms_info.txt log files and copy the WELM ID from the third line of the file. Create a new folder on the Desktop using the WELM ID as the name.
-1. Copy the contents of the **wevtutil** and **welm** folders, that are inside the **Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
+1. Copy the contents of the **wevtutil** and **welm** folders, that are inside the **\\Desktop\\dist\\release\\** folder, to inside the folder named after the WELM ID.
 1. Make sure there are no welm.yyyyMMddHHmms_fatal.txt log files. If there is, then run welm.bat from the dist\debug\ folder and open an issue in the WELM GitHub repository and add the contents of the file, or attach it, to the issue.
 1. Shutdown the VM.
 1. Find the .vhdx file on the host system that represents the VM's hard drive.
@@ -185,19 +185,19 @@ The OEMHelpCustomization and CorporateHelpCustomization features fail to install
 
 #### Windows 8.1
 
-Follow the instructions in the Windows 8 section. 
+Follow the instructions in the [Windows 8](#windows-8) section. 
 
 #### Windows 8.1 Update
 
-Follow the instructions in the Windows 8 section. You will need to rename the output folder to differentiate it from Windows 8.1 without the update. Insert \_u\_ between "8.1" and "enterprise"
+Follow the instructions in the [Windows 8](#windows-8) section. You will need to rename the output folder to differentiate it from Windows 8.1 without the update. Insert \_u\_ between "8.1" and "enterprise"
 
 #### Windows 10 1507
 
-Follow the instructions in the Windows 8 section. 
+Follow the instructions in the [Windows 8](#windows-8) section. 
 
 #### Windows 10 1511
 
-Follow the instructions in the Windows 8 section. 
+Follow the instructions in the [Windows 8](#windows-8) section. 
 
 #### Windows 10 1607 and later
 Starting with Windows 10 1607, the [Automate-WELM.ps1](..\welm\Automate-WELM.ps1) script is provided to automate retrieval of data generated by WELM. The host must be at least Windows 10 1607 with Hyper-V installed and the guest must be Windows 10 1607 or later since the script uses PowerShell Direct ([1](https://msdn.microsoft.com/en-us/virtualization/hyperv_on_windows/user_guide/vmsession), [2](https://technet.microsoft.com/en-us/windows-server-docs/compute/hyper-v/manage/manage-windows-virtual-machines-with-powershell-direct)).
@@ -259,3 +259,8 @@ Can't install ADFS > FS Proxy, File Services > Windows Server 2003 File Services
 
 Install remaining features that are listed as Disabled at the very end. Run the script. After reboot everything will have to be done by keyboard but that's easy since all that's left is running welm.bat.
 
+#### Windows Server 2012
+
+#### Windows Server 2012 R2
+
+#### Windows Server 2016
