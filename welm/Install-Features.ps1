@@ -209,6 +209,36 @@ Function Get-WindowsMediaPath() {
     return $mediaPath
 }
 
+Function Invoke-ParseFeatures() {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true, HelpMessage='The path of the file to execute')]
+        [ValidateNotNullOrEmpty()]
+        [string]$Text
+    )
+
+    $features = New-Object System.Collections.Generic.List[psobject]
+
+    $featureLine = $Text.Split([Environment]::NewLine,[System.StringSplitOptions]::RemoveEmptyEntries)
+
+    for ($i=7; $i -lt $featureLine.Count-1; $i++) {
+        $indexOfBar = $featureLine[$i].IndexOf('|')
+
+        $featureName = $featureLine[$i].Substring(0,$indexOfBar).Trim()
+
+        $featureState = $featureLine[$i].Substring($indexOfBar+2, $featureLine[$i].Length-$indexOfBar-2).Trim()
+
+        $feature = [pscustomobject]@{
+            Name = $featureName;
+            State = $featureState
+        }
+
+        $features.Add($feature)
+    }
+
+    return ,$features
+}
+
 Function Invoke-InstallFeatures() {
     [CmdletBinding()]
     Param()
@@ -284,9 +314,10 @@ Function Invoke-InstallFeatures() {
 
     $result = Invoke-Process -Path $dismPath -Arguments '/online','/get-features','/format:table' -PassThru
 
-    $features = $result.Output
+    $featuresText = $result.Output
 
-    if (-not($features.Contains('Disabled'))) {
+    # todo: check for features that can't be installed
+    if (-not($featuresText.Contains('Disabled'))) {
         $message = 'All features are installed'
         Write-Verbose -Message $message
         [void]$log.AppendLine($message)
@@ -307,12 +338,12 @@ Function Invoke-InstallFeatures() {
         return $returnValue
     }
 
-    $matches = $features | Select-String -Pattern 'Disabled' -AllMatches
+    $matches = $featuresText | Select-String -Pattern 'Disabled' -AllMatches
     $featuresToInstall = $matches.Matches.Count
     $featuresSuccessfullyInstalled = 0
 
     [void]$log.AppendLine('DISM feature status before')
-    [void]$log.AppendLine($features)
+    [void]$log.AppendLine($featuresText)
 
     $errorCode = $result.ExitCode
 
@@ -343,32 +374,20 @@ Function Invoke-InstallFeatures() {
 
     $needsReboot = $false
 
-    $features = $features.Split([Environment]::NewLine,[System.StringSplitOptions]::RemoveEmptyEntries)
+    $features = Invoke-ParseFeatures -Text $featuresText
 
-    for ($i=7; $i -lt $features.Count-1; $i++) {
+    $features | ForEach-Object {
         $message = ''
 
-        $indexOfBar = $features[$i].indexof('|')
+        $featureName = $_.Name
 
-        $featureName = $features[$i].substring(0,$indexOfBar).Trim()
-
-        $featureState = $features[$i].substring($indexOfBar+2, $features[$i].length-$indexOfBar-2).Trim()
+        $featureState = $_.State
 
         if ($featureState -eq "Enabled") {
             $message = "$featureName was skipped because it was already installed"
+
             Write-Verbose -Message $message
             [void]$log.AppendLine($message)
-        #} #elseif (($featureName -eq "Microsoft-Hyper-V" -or $featureName -eq "VmHostAgent") -and $osType -ne 1 -and $version -eq 6.1) {
-            # installing Hyper-V on Server 2008 R2 causes the keyboard to stop working
-            # install it manually after installing all the other features and roles
-            # once that is done then run these commands
-
-            # dism /online /enable-feature /featureName:Microsoft-Hyper-V /NoRestart /Quiet
-            # dism /online /enable-feature /featureName:VmHostAgent /NoRestart /Quiet
-            # dism /online /enable-feature /featureName:Microsoft-Windows-RemoteFX-Host-Package /NoRestart /Quiet
-            # dism /online /enable-feature /featureName:Microsoft-Windows-RemoteFX-EmbeddedVideoCap-Setup-Package /NoRestart /Quiet
-
-            #Write-Warning -Message "$featureName was skipped since it breaks keyboard integration. install this feature manually at the very end" 
         } else {       
             $arguments = New-Object System.Collections.Generic.List[string]
             $arguments.AddRange([string[]]@('/online','/enable-feature',"/featureName:$featureName",'/NoRestart','/Quiet'))
@@ -377,7 +396,7 @@ Function Invoke-InstallFeatures() {
                 $arguments.Add('/All')
             }
 
-            if ($featureName -eq 'NetFx3' -and -not($connected)) {
+            if (($featureName -eq 'NetFx3') -and -not($connected) -and ($featureState -eq 'Disabled With Payload Removed')) {
                 $arguments.Add('/LimitAccess')
                 $arguments.Add("/Source:$mediaPath")
             }
@@ -396,22 +415,26 @@ Function Invoke-InstallFeatures() {
             if ($errorCode -eq 0) {
                 $featuresSuccessfullyInstalled++
                 $message = ('{0} install succeeded. {1} of {2}. {3} minutes {4} seconds' -f $featureName,$featuresSuccessfullyInstalled,$featuresToInstall,$timespan.Minutes,$timespan.Seconds)
+                
                 Write-Verbose -Message $message
                 [void]$log.AppendLine($message)
             } elseif ($errorCode -eq 3010) {
                 $featuresSuccessfullyInstalled++
                 $needsReboot = $true
                 $message = ('{0} install succeeded and requires a system restart. {1} of {2}. {3} minutes {4} seconds' -f $featureName,$featuresSuccessfullyInstalled,$featuresToInstall,$timespan.Minutes,$timespan.Seconds)
+
                 Write-Verbose -Message $message
                 [void]$log.AppendLine($message)
             } elseif ($errorCode -eq 50) {
                 $needsInstall = $true
                 $message = "$featureName install failed. a required feature was not already installed"
+
                 Write-Warning -Message $message
                 [void]$log.AppendLine($message)
             } else {
                 $needsInstall = $true
                 $message = "$featureName install failed with exit code $errorCode and message $message" 
+
                 Write-Warning -Message $message
                 [void]$log.AppendLine($message)
             }
@@ -420,15 +443,16 @@ Function Invoke-InstallFeatures() {
 
     $result = Invoke-Process -Path $dismPath -Arguments '/online','/get-features','/format:table' -PassThru
 
-    $features = $result.Output
+    $featuresText = $result.Output
 
     [void]$log.AppendLine('DISM feature status after')
-    [void]$log.AppendLine($features)
+    [void]$log.AppendLine($featuresText)
 
     $needsInstall = $false
 
     # todo: check for any features that are not installed yet (well, any except for known bads (e.g. breaks keyboard integration)) rather than check for anything being in the Disabled state
-    if ($features.Contains('Disabled')) {
+    # todo: check for features that can't be installed
+    if ($featuresText.Contains('Disabled')) {
         $needsInstall = $true
     }
 

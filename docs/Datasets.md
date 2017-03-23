@@ -26,11 +26,15 @@ This page lists the datasets along with the corresponding Windows installation m
 ## Server
 | Repository folder | Installation media | WELM version |
 | --- | --- | --- |
-| server 2016 x64 | en_windows_server_2016_x64_dvd_9718492.iso | 2.3.0.0 |
-| server 2012 R2 x64 | | 2.3.0.0 |
-| server 2012 x64 | | 2.3.0.0 |
-| server 2008 R2 x64 | | 2.3.0.0 |
-| server 2008 x86 | | 2.3.0.0 |
-| server 2008 x64 | | 2.3.0.0 |
+| [windows_server_2016_1607_datacenter_x64_10.0.14393.447](./data/windows_server_2016_1607_datacenter_x64_10.0.14393.447) |en_windows_server_2016_x64_dvd_9718492.iso | 2.3.0.0 |
+| [windows_server_2012_r2_u_datacenter_x64_6.3.9600.0](./data/windows_server_2012_r2_u_datacenter_x64_6.3.9600.0) | en_windows_server_2012_r2_vl_with_update_x64_dvd_6052766.iso  | 2.3.0.0 |
+| [windows_server_2012_r2_datacenter_x64_6.3.9600.0](./data/windows_server_2012_r2_datacenter_x64_6.3.9600.0) | en_windows_server_2012_r2_vl_x64_dvd_3319595.iso | 2.3.0.0 |
+| [windows_server_2012_datacenter_x64_6.2.9200.0](./data/windows_server_2012_datacenter_x64_6.2.9200.0) | en_windows_server_2012_vl_x64_dvd_917758.iso | 2.3.0.0 |
+| [windows_server_2008_r2_sp1_datacenter_x64_6.1.7601.0](./data/windows_server_2008_r2_sp1_datacenter_x64_6.1.7601.0) | en_windows_server_2008_r2_with_sp1_vl_build_x64_dvd_617403.iso | 2.3.0.0 |
+| [windows_server_2008_sp2_datacenter_x86_6.0.6002.0](./data/windows_server_2008_sp2_datacenter_x86_6.0.6002.0) | en_windows_server_2008_with_sp2_x86_dvd_342333.iso | 2.3.0.0 |
+| [windows_server_2008_sp2_datacenter_x64_6.0.6002.0](./data/windows_server_2008_sp2_datacenter_x64_6.0.6002.0) | en_windows_server_2008_with_sp2_x64_dvd_342336.iso | 2.3.0.0 |
+
+
 | server 2003 R2 x86 | | 2.3.0.0 |
+
 | server 2003 R2 x64 | | 2.3.0.0 |

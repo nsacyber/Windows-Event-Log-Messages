@@ -253,7 +253,7 @@ namespace WelmLibrary
                 output.AppendFormat("Provider: {0}|", Provider);
             }
 
-            output.AppendFormat("MaximumSize: {0}", MaximumSize);
+            output.AppendFormat("MaximumSize: {0}|", MaximumSize);
             output.AppendFormat("Retention: {0}|", Retention);
             output.AppendFormat("Enabled: {0}|", IsEnabled);
             output.AppendFormat("Classic: {0}|", IsClassic);
@@ -266,7 +266,7 @@ namespace WelmLibrary
             }
 
             output.AppendFormat("Providers: {0}|", Providers.Count);
-            output.AppendFormat("FilePath: {0}", FilePath);
+            output.AppendFormat("FilePath: {0}|", FilePath);
 
             if (SecurityDescriptor != null)
             {
