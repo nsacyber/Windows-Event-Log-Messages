@@ -104,6 +104,10 @@ Function Get-NtStatusCodes() {
             } else {
                 $codes.Add($name, $value)
             }
+        } else {
+            if($_.Contains('#define STATUS_')) {
+                Write-Warning -Message ("Line: '{0}' contains NTSTATUS code but does not match regex" -f $_)
+            }
         }
     }
 
@@ -178,7 +182,7 @@ Function Get-ImplicitFacilities() {
     (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').Count
 
     .EXAMPLE
-    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Value 
+    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name 
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
