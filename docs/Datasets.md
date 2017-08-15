@@ -7,8 +7,8 @@ This page lists the available datasets along with the corresponding Windows inst
 | --- | --- | --- |
 | windows_10_1703_enterprise_x86_10.0.15063.0 | en_windows_10_enterprise_version_1703_updated_march_2017_x86_dvd_10188981.iso | 2.3.0.0 |
 | windows_10_1703_enterprise_x64_10.0.15063.0 | en_windows_10_enterprise_version_1703_updated_march_2017_x64_dvd_10189290.iso | 2.3.0.0 |
-| windows_10_1607_enterprise_x86_10.0.14393.447] | en_windows_10_enterprise_version_1607_updated_jan_2017_x86_dvd_9719039.iso | 2.3.0.0 |
-| windows_10_1607_enterprise_x64_10.0.14393.447) | en_windows_10_enterprise_version_1607_updated_jan_2017_x64_dvd_9714415.iso | 2.3.0.0 |
+| windows_10_1607_enterprise_x86_10.0.14393.447 | en_windows_10_enterprise_version_1607_updated_jan_2017_x86_dvd_9719039.iso | 2.3.0.0 |
+| windows_10_1607_enterprise_x64_10.0.14393.447 | en_windows_10_enterprise_version_1607_updated_jan_2017_x64_dvd_9714415.iso | 2.3.0.0 |
 | windows_10_1511_enterprise_x86_10.0.10586.164 | en_windows_10_enterprise_version_1511_updated_apr_2016_x86_dvd_8711709.iso | 2.3.0.0 |
 | windows_10_1511_enterprise_x64_10.0.10586.0 | en_windows_10_enterprise_version_1511_updated_apr_2016_x64_dvd_8711771.iso | 2.3.0.0 |
 | windows_10_1507_enterprise_x86_10.0.10240.16384 | en_windows_10_enterprise_version_1507_x86_dvd_6851156.iso | 2.3.0.0 |
