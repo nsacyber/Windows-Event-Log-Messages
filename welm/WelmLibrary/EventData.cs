@@ -289,7 +289,7 @@ namespace WelmLibrary
             StringBuilder output = new StringBuilder(string.Empty);
 
             output.AppendFormat("Provider: {0}|", Provider);
-            output.AppendFormat("ID {0}|", Id.Code);
+            output.AppendFormat("ID: {0}|", Id.Code);
             output.AppendFormat("Value: {0} (0x{0:X})|", Id.Value);
             output.AppendFormat("Level: {0}|", Level.Name);
             output.AppendFormat("Version: {0}|", Version);
@@ -369,7 +369,7 @@ namespace WelmLibrary
         }
 
         /// <summary>
-        /// Gets the paramters from the template XML metadata and returns them in the correct order as they are used in the event message.
+        /// Gets the parameters from the template XML metadata and returns them in the correct order as they are used in the event message.
         /// </summary>
         /// <param name="template">The template XML string.</param>
         /// <returns>The ordered parameter list.</returns>
@@ -419,7 +419,7 @@ namespace WelmLibrary
 
                         // some developers re-used the same parameter name in the same message so we need to give it a unique name to avoid duplicates in the dictionary
                         // key = original parameter name + "-" + count
-                        // value = original paramter name,data type
+                        // value = original parameter name,data type
                         if (parameters.Contains(name))
                         {
                             nameCount++;
