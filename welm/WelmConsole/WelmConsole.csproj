@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\ILMerge.3.0.18\build\ILMerge.props" Condition="Exists('..\packages\ILMerge.3.0.18\build\ILMerge.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -29,6 +30,8 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -58,17 +61,23 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DocoptNet, Version=0.6.1.4, Culture=neutral, PublicKeyToken=7a38c71da49a547e, processorArchitecture=MSIL">
-      <HintPath>..\packages\docopt.net.0.6.1.9\lib\net40\DocoptNet.dll</HintPath>
+    <Reference Include="DocoptNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=7a38c71da49a547e, processorArchitecture=MSIL">
+      <HintPath>..\packages\docopt.net.0.6.1.10\lib\net40\DocoptNet.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.3\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.5.11\lib\net40-client\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
@@ -79,15 +88,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="app.config" />
     <None Include="app.manifest" />
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -158,30 +167,37 @@ if exist "$(SolutionDir)\dist\release" (
     rmdir /s /q "$(SolutionDir)\dist\release"
 ) 
 
-set ILMERGE_PATH=$(SolutionDir)\packages\ILMerge.2.14.1208\tools\ilmerge.exe
+mkdir "$(SolutionDir)\dist\release"
+
+
+if exist "$(TargetDir)NLog.config" (
+    copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\release\NLog.config" /y &gt;nul
+)
+
+if exist "$(SolutionDir)\Install-Features.ps1" (
+    copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\release\Install-Features.ps1" /y &gt;nul
+)
+
+if exist "$(SolutionDir)\welm.bat" (
+    copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\release\welm.bat" /y &gt;nul
+)
+
+set ILMERGE_PATH=$(SolutionDir)\packages\ILMerge.3.0.18\tools\net452\ilmerge.exe
 
 if exist "%25ILMERGE_PATH%25" (
-    mkdir "$(SolutionDir)\dist\release"
-
     start /wait "" "%25ILMERGE_PATH%25" $(TargetFileName) WelmLibrary.dll DocoptNet.dll NLog.dll CsvHelper.dll Newtonsoft.Json.dll /lib:"$(TargetDir)\"  /target:exe /out:"$(SolutionDir)\dist\release\welm.exe" /ndebug
-
-    if exist "$(TargetDir)NLog.config" (
-        copy "$(TargetDir)NLog.config" "$(SolutionDir)\dist\release\NLog.config" /y &gt;nul
-    )
-
-    if exist "$(SolutionDir)\Install-Features.ps1" (
-        copy "$(SolutionDir)\Install-Features.ps1" "$(SolutionDir)\dist\release\Install-Features.ps1" /y &gt;nul
-    )
-
-    if exist "$(SolutionDir)\welm.bat" (
-        copy "$(SolutionDir)\welm.bat" "$(SolutionDir)\dist\release\welm.bat" /y &gt;nul
-    )
 )
 
 goto end
 
 :end</PostBuildEvent>
   </PropertyGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\ILMerge.3.0.18\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ILMerge.3.0.18\build\ILMerge.props'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
