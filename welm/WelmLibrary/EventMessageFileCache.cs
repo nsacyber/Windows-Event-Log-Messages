@@ -97,6 +97,6 @@ namespace WelmLibrary.Classic
         /// <summary>
         /// The event message file cache instance.
         /// </summary>
-        public static EventMessageFileCache Instance { get; private set; }
+        public static EventMessageFileCache Instance { get; }
     }
 }

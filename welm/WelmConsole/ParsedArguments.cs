@@ -30,7 +30,7 @@ namespace WelmConsole
         /// <summary>
         /// The output format.
         /// </summary>
-        public string Format { get; private set; }
+        public string Format { get; }
 
         public ParsedArguments(IDictionary<string, ValueObject> arguments)
         {
