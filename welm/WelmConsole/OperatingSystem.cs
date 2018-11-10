@@ -220,9 +220,7 @@ namespace WelmConsole
                             Int32 major = (Int32) currentKey.GetValue("CurrentMajorVersionNumber", 0);
                             Int32 minor = (Int32) currentKey.GetValue("CurrentMinorVersionNumber", 0);
 
-                            Int32 build;
-
-                            Int32.TryParse((string) currentKey.GetValue("CurrentBuild", ""), out build);
+                            Int32.TryParse((string) currentKey.GetValue("CurrentBuild", ""), out Int32 build);
 
                             Int32 revision = (Int32) currentKey.GetValue("UBR", 0);
                             osVersion = new Version(major, minor, build, revision);
@@ -240,15 +238,11 @@ namespace WelmConsole
                         {
                             string currentVersion = (string) currentKey.GetValue("CurrentVersion", "");
 
-                            Int32 major;
-                            Int32.TryParse(currentVersion.Split('.')[0], out major);
+                            Int32.TryParse(currentVersion.Split('.')[0], out Int32 major);
 
-                            Int32 minor;
-                            Int32.TryParse(currentVersion.Split('.')[1], out minor);
+                            Int32.TryParse(currentVersion.Split('.')[1], out Int32 minor);
 
-                            Int32 build;
-
-                            if (!Int32.TryParse((string) currentKey.GetValue("CurrentBuild", ""), out build))
+                            if (!Int32.TryParse((string) currentKey.GetValue("CurrentBuild", ""), out Int32 build))
                             {
                                 // Windows XP's CurrentBuild has text saying it is obsolete so use CurrentBuildNumber instead
                                 Int32.TryParse((string) currentKey.GetValue("CurrentBuildNumber", ""), out build);
