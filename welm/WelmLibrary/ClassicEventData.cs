@@ -27,7 +27,7 @@ namespace WelmLibrary.Classic
         public EventId Id { get; }
 
         /// <summary>
-        /// The event's message string. It contains substition variables for its parameters if it has any. Some events do not have a message.
+        /// The event's message string. It contains substitution variables for its parameters if it has any. Some events do not have a message.
         /// </summary>
         public string Message { get; set; }
 

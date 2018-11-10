@@ -40,7 +40,7 @@ namespace WelmLibrary
 
             if (keywords != null)
             {
-                // convert to a list so we can use Count property on the List instead of Count()/Any() method on the IEnumberable which would result in having to enumerate twice (including foreach)
+                // convert to a list so we can use Count property on the List instead of Count()/Any() method on the IEnumerable which would result in having to enumerate twice (including foreach)
                 IList<EventKeyword> eventKeywords = keywords as IList<EventKeyword> ?? keywords.ToList();
 
                 if (eventKeywords.Count > 0)

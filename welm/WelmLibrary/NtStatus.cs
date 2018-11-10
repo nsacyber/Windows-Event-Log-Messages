@@ -16,7 +16,7 @@ namespace WelmLibrary
         public bool IsCustomer { get; }
 
         /// <summary>
-        /// Specifies whether the reserved bit is set. Willl be 0 (false) for NSTATUS values (and Microsoft code). If set, then value can be translated to an HRESULT code.
+        /// Specifies whether the reserved bit is set. Will be 0 (false) for NSTATUS values (and Microsoft code). If set, then value can be translated to an HRESULT code.
         /// </summary>
         public bool IsReserved { get; }
 
@@ -188,7 +188,7 @@ namespace WelmLibrary
         SecurityCore = 232, //0xE8 ntstatus.h
         SystemIntegrity = 233, //0xE9 nstatus.h
         Licensing = 234, //0xEA ntstatus.h
-        PlatformManifiest = 235, //0xEB ntstatus.h
+        PlatformManifest = 235, //0xEB ntstatus.h
         Maximum = 236 //0xEC ntstatus.h for Windows 10.0.15063 SDK, last checked on 04/06/2017 for 1703 Creator Update SDK
     }
 }

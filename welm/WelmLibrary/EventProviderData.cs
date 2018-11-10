@@ -299,7 +299,7 @@ namespace WelmLibrary
 
             if (!string.IsNullOrEmpty(SubstitutionFile))
             {
-                output.AppendFormat("SubtitutionFile: {0}|", SubstitutionFile);
+                output.AppendFormat("SubstitutionFile: {0}|", SubstitutionFile);
             }
 
             if (!string.IsNullOrEmpty(ResourceFile))
@@ -385,7 +385,7 @@ namespace WelmLibrary
         /// Gets the provider event level information if it can be retrieved.
         /// </summary>
         /// <param name="providerMetadata">The provider metadata.</param>
-        /// <returns>The provider event levels or an empty list of levels if the leve can't be retrieved.</returns>
+        /// <returns>The provider event levels or an empty list of levels if the level can't be retrieved.</returns>
         private static IList<EventLevelData> GetProviderEventLevels(ProviderMetadata providerMetadata)
         {
             IList<EventLevelData> levels = new List<EventLevelData>();

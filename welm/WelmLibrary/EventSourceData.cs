@@ -43,7 +43,7 @@ namespace WelmLibrary.Classic
         public string CategoryMessageFile { get; }
 
         /// <summary>
-        /// The substituation parameter message file for this source.
+        /// The substitution parameter message file for this source.
         /// </summary>
         public string ParameterMessageFile { get; }
 
@@ -116,7 +116,7 @@ namespace WelmLibrary.Classic
                                     ParameterMessageFile = (string)key.GetValue(valueName);
                                     break;
                                 case "eventsourceflags":
-                                    // might be dwFlags in  UTHZ_SOURCE_SCHEMA_REGISTRATION: https://msdn.microsoft.com/en-us/library/windows/desktop/aa376325(v=vs.85).aspx
+                                    // might be dwFlags in  AUTHZ_SOURCE_SCHEMA_REGISTRATION: https://msdn.microsoft.com/en-us/library/windows/desktop/aa376325(v=vs.85).aspx
                                     Int32 flags = (Int32)key.GetValue(valueName);
                                     Logger.Info(CultureInfo.CurrentCulture, "Unsupported registry value name EventSourceFlags has a value of {0} (0x{1:X}) for source {2}", flags, flags, sourceName);
                                     break;

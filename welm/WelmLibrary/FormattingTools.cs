@@ -6,7 +6,7 @@
         /// Replaces special characters in a string so lines will not break across multiple lines for plaintext output.
         /// </summary>
         /// <param name="message">The message to format.</param>
-        /// <returns>The formmatted message.</returns>
+        /// <returns>The formatted message.</returns>
         public static string FormatMessageForPlaintext(string message)
         {
             if (message == null)

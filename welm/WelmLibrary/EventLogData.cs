@@ -91,7 +91,7 @@ namespace WelmLibrary
             LogType = string.Empty;
             Isolation = string.Empty;
             DebugGuid = Guid.Empty;
-            // maybe change this to a list of ProviderData objects in the future since that'd give more information 
+            // maybe change this to a list of ProviderData objects in the future since that would give more information 
             // it will add the overhead of retrieving all the events though which significantly slows log retrieval
             Providers = new List<string>();
             FilePath = string.Empty;

@@ -21,7 +21,7 @@ namespace WelmLibrary.Classic
         public enum LoadLibraryFlags : uint
         {
             LoadLibrary = 0x0, // acts the same as LoadLibrary so GetModuleFileName, GetModuleHandle, GetProcAddress will work
-            DontResolveDllReferences = 0x1, // do not use, backwards compatability only, but GetModuleFileName et. al. works though
+            DontResolveDllReferences = 0x1, // do not use, backwards compatibility only, but GetModuleFileName et. al. works though
             LoadLibraryAsDataFile = 0x2, // GetModuleFileName, GetModuleHandle, GetProcAddress do not work when using this option
             LoadWithAlteredSearchPath = 0x8, // can't be combined with any other LoadLibrarySearch* flags
             LoadIgnoreCodeAuthzLevel = 0x10, // Windows 7+, requires KB2532445 to be installed
@@ -71,7 +71,7 @@ namespace WelmLibrary.Classic
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr LockResource(IntPtr hResData);
 
-        public static bool IsIntresource(IntPtr value)
+        public static bool IsIntResource(IntPtr value)
         {
             return (uint)value <= short.MaxValue;
         }

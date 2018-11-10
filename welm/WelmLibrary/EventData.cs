@@ -80,7 +80,7 @@ namespace WelmLibrary
         public EventLogData LoggedTo { get; }
 
         /// <summary>
-        /// The event's message string. It contains substition variables for its parameters, if any. Some events do not have a description.
+        /// The event's message string. It contains substitution variables for its parameters, if any. Some events do not have a description.
         /// </summary>
         public string Message { get; set; }
 
@@ -440,7 +440,7 @@ namespace WelmLibrary
         /// Creates a formatted string of parameters.
         /// </summary>
         /// <param name="parameters">The parameters to format.</param>
-        /// <returns>A formatted paramter string.</returns>
+        /// <returns>A formatted parameter string.</returns>
         private static string CreateParameterOutput(OrderedDictionary parameters)
         {
             StringBuilder output = new StringBuilder(string.Empty);

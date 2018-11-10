@@ -203,7 +203,7 @@ namespace WelmLibrary.Classic
                 return false;
             }
 
-            if (NativeMethods.IsIntresource(lpType))
+            if (NativeMethods.IsIntResource(lpType))
             {
                 if (lpType.ToInt32() == MessageTableResource)
                 {
@@ -371,7 +371,7 @@ namespace WelmLibrary.Classic
         }
 
         /// <summary>
-        /// An application-defined callback function used with the EnumResourceNames and EnumResourceNamesEx functions. It receives the type and name of a resource. The ENUMRESNAMEPROC type defines a pointer to this callback function. EnumResNameProc is a placeholder for the application-defined function name. Equivalent to EnunResNamesProc.
+        /// An application-defined callback function used with the EnumResourceNames and EnumResourceNamesEx functions. It receives the type and name of a resource. The ENUMRESNAMEPROC type defines a pointer to this callback function. EnumResNameProc is a placeholder for the application-defined function name. Equivalent to EnumResNamesProc.
         /// </summary>
         /// <param name="hModule">A handle to the module whose executable file contains the resources that are being enumerated. If this parameter is NULL, the function enumerates the resource names in the module used to create the current process.</param>
         /// <param name="lpType">The type of resource for which the name is being enumerated. Alternately, rather than a pointer, this parameter can be MAKEINTRESOURCE(ID), where ID is an integer value representing a predefined resource type. For standard resource types, see Resource Types.</param>

@@ -98,7 +98,7 @@ namespace WelmLibrary
             }
             else
             {
-                // not sure what to do when the value is less than 0 and haven't encoutered this yet for Microsoft event IDs
+                // not sure what to do when the value is less than 0 and haven't encountered this yet for Microsoft event IDs
                 Logger.Warn(CultureInfo.CurrentCulture, "Invalid event ID value {0} (0x{1:X})", value, value);
             }
         }
