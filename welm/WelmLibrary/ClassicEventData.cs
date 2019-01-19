@@ -24,7 +24,7 @@ namespace WelmLibrary.Classic
         /// <summary>
         /// The event ID.
         /// </summary>
-        public EventId Id { get; }
+        public EventId Identifier { get; }
 
         /// <summary>
         /// The event's message string. It contains substitution variables for its parameters if it has any. Some events do not have a message.
@@ -36,13 +36,13 @@ namespace WelmLibrary.Classic
         /// </summary>
         /// <param name="logName">The name of the log for the event.</param>
         /// <param name="sourceName">The name of the source for the event.</param>
-        /// <param name="id">The event ID.</param>
+        /// <param name="identifier">The event ID.</param>
         /// <param name="message">The event message</param>
-        public ClassicEventData(string logName, string sourceName, EventId id, string message)
+        public ClassicEventData(string logName, string sourceName, EventId identifier, string message)
         {
             Log = logName ?? string.Empty;
             Source = sourceName ?? string.Empty;
-            Id = id;
+            Identifier = identifier;
             Message = message ?? string.Empty;
         }
 
@@ -98,8 +98,8 @@ namespace WelmLibrary.Classic
                             {
                                 csvWriter.WriteField<string>(evt.Log);
                                 csvWriter.WriteField<string>(evt.Source);
-                                csvWriter.WriteField<ushort>(evt.Id.Code);
-                                csvWriter.WriteField<string>(string.Format(CultureInfo.CurrentCulture, "0x{0:X}",evt.Id.Value));
+                                csvWriter.WriteField<ushort>(evt.Identifier.Code);
+                                csvWriter.WriteField<string>(string.Format(CultureInfo.CurrentCulture, "0x{0:X}",evt.Identifier.Value));
                                 csvWriter.WriteField<string>(FormattingTools.FormatMessageForPlaintext(evt.Message));
                                 csvWriter.NextRecord();
                             }
@@ -107,7 +107,7 @@ namespace WelmLibrary.Classic
                             sw.Flush();
                         }
 
-                        csvBuilder.Insert(0, "\"Log\",\"Source\",\"ID\",\"Value\",\"Message\"" + Environment.NewLine);
+                        csvBuilder.Insert(0, "\"Log\",\"Source\",\"Code\",\"Value\",\"Message\"" + Environment.NewLine);
                         data = csvBuilder.ToString();
                         break;
                     default:
@@ -123,8 +123,8 @@ namespace WelmLibrary.Classic
             StringBuilder output = new StringBuilder(string.Empty);
             output.AppendFormat("Log: {0}|", Log);
             output.AppendFormat("Source: {0}|", Source);
-            output.AppendFormat("ID: {0}|", Id.Code);
-            output.AppendFormat("Value: {0} (0x{0:X})|", Id.Value);
+            output.AppendFormat("Code: {0}|", Identifier.Code);
+            output.AppendFormat("Value: {0} (0x{0:X})|", Identifier.Value);
 
             if (!string.IsNullOrEmpty(Message))
             {
@@ -145,7 +145,7 @@ namespace WelmLibrary.Classic
 
         public override int GetHashCode()
         {
-            return Message.GetHashCode() + Id.GetHashCode();
+            return Message.GetHashCode() + Identifier.GetHashCode();
         }
     }
 }

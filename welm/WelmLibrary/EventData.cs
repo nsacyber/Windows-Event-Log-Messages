@@ -47,7 +47,7 @@ namespace WelmLibrary
         /// <summary>
         /// The event number that corresponds to the Event ID column seen in the Event Viewer.
         /// </summary>
-        public EventId Id { get; }
+        public EventId Identifier { get; }
 
         /// <summary>
         /// The event level that corresponds to the Level column seen in the Event Viewer. Generally these are Error, Informational, Warning, Critical, or Verbose.
@@ -99,7 +99,7 @@ namespace WelmLibrary
             if (metadata != null)
             {
                 Provider = string.IsNullOrEmpty(providerName) ? string.Empty : providerName;
-                Id = new EventId(metadata.Id);
+                Identifier = new EventId(metadata.Id);
                 Level = new EventLevelData(metadata.Level.DisplayName, metadata.Level.Value);
                 Version = metadata.Version;
                 Task = new EventTaskData(metadata.Task.Name, metadata.Task.DisplayName, metadata.Task.Value, metadata.Task.EventGuid);
@@ -112,11 +112,11 @@ namespace WelmLibrary
                 //Parameters = string.IsNullOrEmpty(metadata.Description) ? new OrderedDictionary() : GetEventParametersFromXmlTemplate(metadata.Template);
                 Parameters = string.IsNullOrEmpty(metadata.Template) ? new OrderedDictionary() : GetEventParametersFromXmlTemplate(metadata.Template);
 
-                // use the officially defined level information when it exists, otherwise we try to guess the level from Id.Severity which may or may not be accurate
+                // use the officially defined level information when it exists, otherwise we try to guess the level from Identifier.Severity which may or may not be accurate
                 // previously, there was a question mark added to the end of the level name to denote this case but it was removed since it seems like a valid guess
                 if (string.IsNullOrEmpty(Level.Name))
                 {
-                    Level = new EventLevelData(string.Format(CultureInfo.CurrentCulture, "{0}", Id.Severity), (int)Enum.Parse(typeof(NtSeverity), Id.Severity));
+                    Level = new EventLevelData(string.Format(CultureInfo.CurrentCulture, "{0}", Identifier.Severity), (int)Enum.Parse(typeof(NtSeverity), Identifier.Severity));
                 }
 
                 // odd case but fairly common
@@ -134,7 +134,7 @@ namespace WelmLibrary
             else
             {
                 Provider = string.Empty;
-                Id = new EventId();
+                Identifier = new EventId();
                 Level = new EventLevelData();
                 Version = 0;
                 Task = new EventTaskData();
@@ -257,8 +257,8 @@ namespace WelmLibrary
                             {
 
                                 csvWriter.WriteField<string>(evt.Provider);
-                                csvWriter.WriteField<ushort>(evt.Id.Code);
-                                csvWriter.WriteField<string>(string.Format(CultureInfo.CurrentCulture, "0x{0:X}", evt.Id.Value));
+                                csvWriter.WriteField<ushort>(evt.Identifier.Code);
+                                csvWriter.WriteField<string>(string.Format(CultureInfo.CurrentCulture, "0x{0:X}", evt.Identifier.Value));
                                 csvWriter.WriteField<string>(evt.Level.Name);
                                 csvWriter.WriteField<byte>(evt.Version);
                                 csvWriter.WriteField<string>(evt.Task.Name);
@@ -273,7 +273,7 @@ namespace WelmLibrary
                             sw.Flush();
                         }
 
-                        csvBuilder.Insert(0, "\"Provider\",\"ID\",\"Value\",\"Level\",\"Version\",\"Task\",\"Opcode\",\"Keywords\",\"LoggedTo\",\"Message\",\"Parameters\"" + Environment.NewLine);
+                        csvBuilder.Insert(0, "\"Provider\",\"Code\",\"Value\",\"Level\",\"Version\",\"Task\",\"Opcode\",\"Keywords\",\"LoggedTo\",\"Message\",\"Parameters\"" + Environment.NewLine);
                         data = csvBuilder.ToString();
                         break;
                     default:
@@ -289,8 +289,8 @@ namespace WelmLibrary
             StringBuilder output = new StringBuilder(string.Empty);
 
             output.AppendFormat("Provider: {0}|", Provider);
-            output.AppendFormat("ID: {0}|", Id.Code);
-            output.AppendFormat("Value: {0} (0x{0:X})|", Id.Value);
+            output.AppendFormat("Code: {0}|", Identifier.Code);
+            output.AppendFormat("Value: {0} (0x{0:X})|", Identifier.Value);
             output.AppendFormat("Level: {0}|", Level.Name);
             output.AppendFormat("Version: {0}|", Version);
 
@@ -349,7 +349,7 @@ namespace WelmLibrary
             {
                 if (Provider != null && other.Provider != null && Provider.Equals(other.Provider))
                 {
-                    if (Id != null && other.Id != null && Id.Equals(other.Id))
+                    if (Identifier != null && other.Identifier != null && Identifier.Equals(other.Identifier))
                     {
                         if (Level != null && other.Level != null && Level.Equals(other.Level))
                         {
@@ -365,7 +365,7 @@ namespace WelmLibrary
         public override int GetHashCode()
         {
             // event IDs should be unique per provider but just in case they aren't, use the event ID and level too 
-            return Provider.GetHashCode() + Id.Code.GetHashCode() + Level.Value.GetHashCode();
+            return Provider.GetHashCode() + Identifier.Code.GetHashCode() + Level.Value.GetHashCode();
         }
 
         /// <summary>
