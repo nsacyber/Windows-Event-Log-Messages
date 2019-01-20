@@ -3,9 +3,10 @@
 WELM requires administrative rights to retrieve all event information. Specifically it needs administrative rights to get event information about the Security log, its related providers, and its events.
 
 ## Usage and examples
-```
+
+```dos
         Usage:
-            welm.exe -h 
+            welm.exe -h
             welm.exe ([-p | -l | -e]) -f Format
 
         Options:

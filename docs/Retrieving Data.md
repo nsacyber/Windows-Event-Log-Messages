@@ -1,6 +1,7 @@
 # Retrieving data
 
 This section describes how to maximize the amount of event information available for retrieval by WELM. A truly exhaustive and complete amount of event information will never be able to be retrieved for a number of reasons:
+
 1. Some event information can't be loaded due to errors in their definitions.
 1. Some features can't be installed simultaneously in Windows preventing retrieval of associated event information.
 
@@ -12,13 +13,14 @@ What you need:
 1. A host system running Windows 10 1607 or later (required for [PowerShell Direct](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/powershell-direct) [persistent session](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/powershell-direct#copy-files-with-new-pssession-and-copy-item) and NAT switch support).
 1. Hyper-V installed on the host system.
 1. A Hyper-V [NAT switch](https://docs.microsoft.com/en-us/1irtualization/hyper-v-on-windows/user-guide/setup-nat-network) if you want the system to access the Internet to install patches from Windows Update.
-1.  A .iso file containing installation media for Enterprise Edition (x86 and x64) for desktop systems and Datacenter or Enterprise Edition for server systems.
+1. A .iso file containing installation media for Enterprise Edition (x86 and x64) for desktop systems and Datacenter or Enterprise Edition for server systems.
 
 ## Virtual machine preparation
 
 Operating system specific instructions below.
 
 [Desktops](#desktops):
+
 * [Windows XP SP3](#windows-xp)
 * [Windows Vista SP2](#windows-vista)
 * [Windows 7 SP1](#windows-7)
@@ -30,6 +32,7 @@ Operating system specific instructions below.
 * [Windows 10 1607 and later](#windows-10-1607-and-later)
 
 [Servers](#servers):
+
 * [Windows Server 2003 R2 SP1](#windows-server-2003)
 * [Windows Server 2008 SP2](#windows-server-2008)
 * [Windows Server 2008 R2 SP1](#windows-server-2008-r2)
@@ -165,7 +168,7 @@ Starting with Windows 10 1607, the [Automate-WELM.ps1](..\welm\Automate-WELM.ps1
 
 Create a template virtual machine that can be cloned by the script. The virtual machine should have Internet access OR a Windows installation DVD inserted into its virtual DVD drive. Run the following command on the host as an administrator:
 
-```
+```powershell
 powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1607 Enterprise x64" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1607 Enterprise x64" -HostCodePath "C:\users\user\Desktop" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" -DnsServer '123.45.67.890' -NoWindowsUpdate -Verbose
 ```
 
@@ -178,15 +181,15 @@ Same as Windows XP steps. Put junk values in everything when components are inst
 If a Windows feature/component is checked but its box is gray rather than white, then that means sub-components are not getting installed. Select the component and click the Details button to enable all the components. Some components that won't be installed:
 
 * Active Directory Services > ADFS >
-    * Federation Service - requires dcpromo AND a SSL certificate in IIS
-    * Federation Proxy - requires dcpromo AND a SSL certificate in IIS
+  * Federation Service - requires dcpromo AND a SSL certificate in IIS
+  * Federation Proxy - requires dcpromo AND a SSL certificate in IIS
 * Active Directory Services > Indentity Management for UNIX >
-    * Server for NIS - requires dcpromo
+  * Server for NIS - requires dcpromo
 * Application Server
-    * Enable network DTC access - wouldn't install on x86, but did on x64
+  * Enable network DTC access - wouldn't install on x86, but did on x64
 * Application Server > Message Queuing >
-    * Downlevel Client Support - requires running dcpromo... wouldn't install on x86, complained about MSMQ 1.0 being installed. Installed on x64.
-    * Routing Support - requires running dcpromo... wouldn't install on x86, complained about MSMQ 1.0 being installed. Installed on x64.
+  * Downlevel Client Support - requires running dcpromo... wouldn't install on x86, complained about MSMQ 1.0 being installed. Installed on x64.
+  * Routing Support - requires running dcpromo... wouldn't install on x86, complained about MSMQ 1.0 being installed. Installed on x64.
 
 The ADFS service and proxy wouldn't install on x65. On x86 there was a bunch of other components that wouldn't install as outlined above.
 
@@ -203,7 +206,8 @@ Run welm.bat.
 Don't install AD CS, AD FS, AD LDS, AD RMS, DNS, DHCP, TS until after installing AD DS and running dcpromo.
 
 On the server it brings up the Roles and Features dialog. Install all the features possible and reboot. There will only be two sub-items that can't install since they need to be installed once domain joined:
-* Message Queuing > Message Queuing Services > Routing Service 
+
+* Message Queuing > Message Queuing Services > Routing Service
 * Message Queuing > Windows 2000 Client Support
 
 After running dcpromo and rebooting, install the above features.
@@ -217,7 +221,7 @@ After running dcpromo and rebooting, install the above features.
 
 Insert more complicated steps...
 
-RMS issue: https://social.technet.microsoft.com/wiki/contents/articles/253.the-password-could-not-be-validated-when-attempting-to-provision-an-ad-rms-server.aspx
+RMS issue: <https://social.technet.microsoft.com/wiki/contents/articles/253.the-password-could-not-be-validated-when-attempting-to-provision-an-ad-rms-server.aspx>
 
 #### Windows Server 2008 R2
 
@@ -245,6 +249,7 @@ Installing Index Server causes some roles and features to not be able to be inst
 1. Run welm.bat.
 
 #### Windows Server 2012
+
 Follow the instructions in the [Windows 8](#windows-8) section.
 
 1. Give the system an IP address.
@@ -258,6 +263,7 @@ Follow the instructions in the [Windows 8](#windows-8) section.
 1. Run welm.bat.
 
 #### Windows Server 2012 R2
+
 Follow the instructions in the [Windows Server 2012](#windows-server-2012) section.
 
 #### Windows Server 2012 R2 Update

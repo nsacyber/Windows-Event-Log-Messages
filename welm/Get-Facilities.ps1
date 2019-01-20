@@ -12,16 +12,16 @@ Function Get-ExplicitFacilities() {
     The path to ntstatus.h.
 
     .EXAMPLE
-    Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h'
+    Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h'
 
     .EXAMPLE
-    (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name -Descending
+    (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name -Descending
 
     .EXAMPLE
-    (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').Count
+    (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').Count
 
     .EXAMPLE
-    (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Value
+    (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Value
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
@@ -66,13 +66,13 @@ Function Get-NtStatusCodes() {
     The path to ntstatus.h.
 
     .EXAMPLE
-    Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h'
+    Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h'
 
     .EXAMPLE
-    (Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').Count
+    (Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').Count
 
     .EXAMPLE
-    (Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Value | ForEach-Object { ('{0} 0x{1:X}') -f $_.Name,$_.Value }
+    (Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Value | ForEach-Object { ('{0} 0x{1:X}') -f $_.Name,$_.Value }
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
@@ -170,16 +170,16 @@ Function Get-ImplicitFacilities() {
     The path to ntstatus.h.
 
     .EXAMPLE
-    Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h'
+    Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h'
 
     .EXAMPLE
-    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name -Descending
+    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name -Descending
 
     .EXAMPLE
-    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').Count
+    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').Count
 
     .EXAMPLE
-    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name
+    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]

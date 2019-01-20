@@ -132,9 +132,10 @@ namespace WelmLibrary
     {
         // TODO: facilities change per OS release so it would be more accurate to define and assign them per OS release
         // facilities: https://msdn.microsoft.com/en-us/library/cc231214.aspx
-        
+
         // use Get-Facilities.ps1 Get-ExplicitFacilities cmdlet to check latest SDK against previous SDK for every Windows release
-        
+        // e.g. (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Value
+
         Null = 0, //not actually defined anywhere but this will suppress invalid facility log messages
         Debugger = 1, //MS-ERREF
         RpcRuntime = 2, //MS-ERREF
@@ -189,6 +190,7 @@ namespace WelmLibrary
         SystemIntegrity = 233, //0xE9 nstatus.h
         Licensing = 234, //0xEA ntstatus.h
         PlatformManifest = 235, //0xEB ntstatus.h
-        Maximum = 236 //0xEC ntstatus.h for Windows 10.0.15063 SDK, last checked on 04/06/2017 for 1703 Creator Update SDK
+        AppExec = 236, //0xEC ntstatus.h
+        Maximum = 237 //0xED ntstatus.h for Windows 10.0.17763.0 SDK, last checked on 01/20/2018 for 1809 Windows SDK
     }
 }

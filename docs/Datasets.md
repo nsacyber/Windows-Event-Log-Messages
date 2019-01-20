@@ -3,6 +3,7 @@
 This page lists the available datasets along with the corresponding Windows installation media and WELM version used to generate the data. Retrieved data is available as a dated (YYYMMDD) zip file attachment on the [latest release](https://github.com/iadgov/Windows-Event-Log-Messages/releases) organized by operating system version and architecture. Expanding the dated zip file attachment results in a number of folders that corresponding to Windows operating system releases along with the architecture version. The folders from expanded zip file correspond to the names in the **Folder** column of the tables on this page.
 
 ## Desktop
+
 | Folder | Installation media | WELM version |
 | --- | --- | --- |
 | windows_10_1703_enterprise_x86_10.0.15063.0 | en_windows_10_enterprise_version_1703_updated_march_2017_x86_dvd_10188981.iso | 2.3.0.0 |
@@ -26,6 +27,7 @@ This page lists the available datasets along with the corresponding Windows inst
 | windows_xp_sp3_professional_x86_5.1.2600.0 | en_windows_xp_professional_with_service_pack_3_x86_cd_x14-80428.iso | 2.3.0.0 |
 
 ## Server
+
 | Folder | Installation media | WELM version |
 | --- | --- | --- |
 | windows_server_2016_1607_datacenter_x64_10.0.14393.447 |en_windows_server_2016_x64_dvd_9718492.iso | 2.3.0.0 |
