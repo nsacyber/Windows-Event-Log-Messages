@@ -1,4 +1,3 @@
-#requires -version 2
 Set-StrictMode -Version 2
 
 Function Test-InternetConnection() {
@@ -8,9 +7,9 @@ Function Test-InternetConnection() {
         [Parameter(Mandatory=$false, HelpMessage='The URL to test connectivity to')]
         [ValidateNotNullOrEmpty()]
         [string]$Url = 'http://www.msftncsi.com/ncsi.txt',
- 
+
         [Parameter(Mandatory=$false, HelpMessage='The timeout period in seconds')]
-        [int]$Timeout = 5  
+        [int]$Timeout = 5
     )
 
     $connected = $false
@@ -19,7 +18,7 @@ Function Test-InternetConnection() {
     if (-not($Url.StartsWith('http://') -or $Url.StartsWith('https://'))) {
         $Url = 'http://{0}' -f $Url
     }
-    
+
     try {
         $proxyUri = [System.Net.WebRequest]::GetSystemWebProxy().GetProxy($Url)
 
@@ -94,20 +93,20 @@ Function Invoke-Process() {
         }
     }
 
-    $processInfo = New-Object System.Diagnostics.ProcessStartInfo 
+    $processInfo = New-Object System.Diagnostics.ProcessStartInfo
     $processInfo.FileName = $Path
-    $processInfo.RedirectStandardError = $true 
-    $processInfo.RedirectStandardOutput = $true 
-    $processInfo.UseShellExecute = $false 
+    $processInfo.RedirectStandardError = $true
+    $processInfo.RedirectStandardOutput = $true
+    $processInfo.UseShellExecute = $false
     $processInfo.CreateNoWindow = $true
     $processInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
     $processInfo.Arguments = $escapedArguments.Trim()
     $process = New-Object System.Diagnostics.Process
-    $process.StartInfo = $processInfo 
-    $process.Start() | Out-Null 
-    $output = $process.StandardOutput.ReadToEnd() 
+    $process.StartInfo = $processInfo
+    $process.Start() | Out-Null
+    $output = $process.StandardOutput.ReadToEnd()
     $process.WaitForExit()
-    
+
     $exitCode = $process.ExitCode
 
     if($PassThru) {
@@ -182,14 +181,14 @@ Function Get-WindowsMediaPath() {
 
     # get CD/DVD drives
     $drives = @(Get-WmiObject -Class Win32_LogicalDisk -Filter 'DriveType=5')
-    
+
     if ($drives.Count -ne 0) {
         foreach($drive in $drives) {
             $driveLetter = ($drive | Select-Object DeviceID -ExpandProperty DeviceID)
 
             $size = ($drive | Select-Object Size -ExpandProperty Size)
 
-            if($size -eq $null) {
+            if($null -ne $size) {
                 continue
             }
 
@@ -204,7 +203,7 @@ Function Get-WindowsMediaPath() {
                 continue
             }
         }
-    }   
+    }
 
     return $mediaPath
 }
@@ -242,7 +241,7 @@ Function Invoke-ParseFeatures() {
 Function Invoke-InstallFeatures() {
     [CmdletBinding()]
     Param()
-    
+
     $functionStart = [System.DateTime]::Now
 
     $log = New-Object System.Text.StringBuilder
@@ -269,16 +268,16 @@ Function Invoke-InstallFeatures() {
         $logData = $log.ToString()
 
         $functionEnd = [System.DateTime]::Now
-        
+
         $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)
-        
+
         $returnValue = [pscustomobject]@{
             NeedsReboot = $false;
             NeedsInstall = $false; # no way to automate install on this OS
             Log = $logData;
             Elapsed = $functionTimespan;
         }
-        
+
         return $returnValue
     }
 
@@ -294,23 +293,23 @@ Function Invoke-InstallFeatures() {
             [void]$log.AppendLine($message)
 
             $logData = $log.ToString()
-            
+
             $functionEnd = [System.DateTime]::Now
 
             $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)
-            
+
             $returnValue = [pscustomobject]@{
                 NeedsReboot = $false;
                 NeedsInstall = $true;
                 Log = $logData;
                 Elapsed = $functionTimespan;
             }
-            
+
             return $returnValue
         }
     }
-  
-    $osType = Get-WmiObject Win32_OperatingSystem | select ProductType -Expand ProductType
+
+    $osType = Get-WmiObject Win32_OperatingSystem | Select-Object -Property ProductType -ExpandProperty ProductType
 
     $result = Invoke-Process -Path $dismPath -Arguments '/online','/get-features','/format:table' -PassThru
 
@@ -323,10 +322,10 @@ Function Invoke-InstallFeatures() {
         [void]$log.AppendLine($message)
 
         $logData = $log.ToString()
-        
+
         $functionEnd = [System.DateTime]::Now
 
-        $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)        
+        $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)
 
         $returnValue = [pscustomobject]@{
             NeedsReboot = $false;
@@ -361,7 +360,7 @@ Function Invoke-InstallFeatures() {
         $functionEnd = [System.DateTime]::Now
 
         $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)
-        
+
         $returnValue = [pscustomobject]@{
             NeedsReboot = $true;
             NeedsInstall = $true;
@@ -388,7 +387,7 @@ Function Invoke-InstallFeatures() {
 
             Write-Verbose -Message $message
             [void]$log.AppendLine($message)
-        } else {       
+        } else {
             $arguments = New-Object System.Collections.Generic.List[string]
             $arguments.AddRange([string[]]@('/online','/enable-feature',"/featureName:$featureName",'/NoRestart','/Quiet'))
 
@@ -415,7 +414,7 @@ Function Invoke-InstallFeatures() {
             if ($errorCode -eq 0) {
                 $featuresSuccessfullyInstalled++
                 $message = ('{0} install succeeded. {1} of {2}. {3} minutes {4} seconds' -f $featureName,$featuresSuccessfullyInstalled,$featuresToInstall,$timespan.Minutes,$timespan.Seconds)
-                
+
                 Write-Verbose -Message $message
                 [void]$log.AppendLine($message)
             } elseif ($errorCode -eq 3010) {
@@ -433,7 +432,7 @@ Function Invoke-InstallFeatures() {
                 [void]$log.AppendLine($message)
             } else {
                 $needsInstall = $true
-                $message = "$featureName install failed with exit code $errorCode and message $message" 
+                $message = "$featureName install failed with exit code $errorCode and message $message"
 
                 Write-Warning -Message $message
                 [void]$log.AppendLine($message)
@@ -457,7 +456,7 @@ Function Invoke-InstallFeatures() {
     }
 
     $logData = $log.ToString()
-    
+
     $functionEnd = [System.DateTime]::Now
 
     $functionTimespan = [System.TimeSpan]($functionEnd - $functionStart)

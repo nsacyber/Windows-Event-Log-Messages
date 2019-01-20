@@ -1,5 +1,4 @@
-#requires -version 4
-Set-StrictMode -Version 4
+Set-StrictMode -Version Latest
 
 Function Get-ClassicEventLogStatistics() {
     <#
@@ -18,16 +17,16 @@ Function Get-ClassicEventLogStatistics() {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to the JSON file that holds classic log information')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to the JSON file that holds classic log information')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*\.json$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $content = Get-Content $Path -Raw
     $logsJson = ConvertFrom-Json $content
 
-    
+
     $logStatistics = [pscustomobject]@{
         'Logs' = $logsJson.Count;
     }
@@ -52,10 +51,10 @@ Function Get-EventLogStatistics() {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to the JSON file that holds log information')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to the JSON file that holds log information')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*\.json$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $content = Get-Content $Path -Raw
@@ -90,7 +89,7 @@ Function Get-EventLogStatistics() {
     return [pscustomobject]$logStatistics
 }
 
-Function Get-ClassicEventStatistics() {    
+Function Get-ClassicEventStatistics() {
 <#
     .SYNOPSIS
     Gets event statistics for classic style Windows events.
@@ -107,22 +106,22 @@ Function Get-ClassicEventStatistics() {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to the JSON file that holds classic event information')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to the JSON file that holds classic event information')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*\.json$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $content = Get-Content $Path -Raw
     $eventsJson = ConvertFrom-Json $content
 
-    $eventsCount = $eventsJson.Count    
+    $eventsCount = $eventsJson.Count
 
-    $eventsWithMessagesCount = @($eventsJson | Where-Object { $_.Message -ne $null -and $_.Message -ne ''}).Count
+    $eventsWithMessagesCount = @($eventsJson | Where-Object { $null -ne $_.Message -and $_.Message -ne ''}).Count
 
-    $eventsWithNoMessageCount = @($eventsJson | Where-Object { $_.Message -eq $null -or $_.Message -eq ''}).Count
+    $eventsWithNoMessageCount = @($eventsJson | Where-Object { $null -ne $_.Message -or $_.Message -eq ''}).Count
 
-    $eventsWithMessagesAndParamsCount = @($eventsJson | Where-Object { $_.Message -ne $null -and $_.Message -ne '' -and $_.Message.Contains('%') }).Count
+    $eventsWithMessagesAndParamsCount = @($eventsJson | Where-Object { $null -ne $_.Message -and $_.Message -ne '' -and $_.Message.Contains('%') }).Count
 
     $eventStatistics = [pscustomobject]@{
         'Events' = $eventsCount;
@@ -151,24 +150,24 @@ Function Get-EventStatistics() {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to the JSON file that holds event information')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to the JSON file that holds event information')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*\.json$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $content = Get-Content $Path -Raw
     $eventsJson = ConvertFrom-Json $content
 
-    $eventsCount = $eventsJson.Count    
+    $eventsCount = $eventsJson.Count
 
-    $eventsWithMessagesCount = @($eventsJson | Where-Object { $_.Message -ne $null -and $_.Message -ne ''}).Count
+    $eventsWithMessagesCount = @($eventsJson | Where-Object { $null -ne $_.Message -and $_.Message -ne ''}).Count
 
-    $eventsWithNoMessageCount = @($eventsJson | Where-Object { $_.Message -eq $null -or $_.Message -eq ''}).Count
+    $eventsWithNoMessageCount = @($eventsJson | Where-Object { $null -ne $_.Message -or $_.Message -eq ''}).Count
 
-    $eventsWithMessagesAndParamsCount = @($eventsJson | Where-Object { $_.Message -ne $null -and $_.Message -ne '' -and $_.Message.Contains('%') }).Count
+    $eventsWithMessagesAndParamsCount = @($eventsJson | Where-Object { $null -ne $_.Message -and $_.Message -ne '' -and $_.Message.Contains('%') }).Count
 
-    $eventsWithNoMessageButParamsCount = @($eventsJson | Where-Object { $_.Message -eq $null -or $_.Message -eq '' -and ([bool](($_.Parameters | Get-Member -MemberType NoteProperty) -ne $null )) }).Count
+    $eventsWithNoMessageButParamsCount = @($eventsJson | Where-Object { $null -ne $_.Message -or $_.Message -eq '' -and ([bool]($null -ne ($_.Parameters | Get-Member -MemberType NoteProperty))) }).Count
 
     $eventStatistics = [pscustomobject]@{
         'Events' = $eventsCount;
@@ -198,23 +197,21 @@ Function Get-ClassicSourceStatistics() {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to the JSON file that holds classic source information')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to the JSON file that holds classic source information')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*\.json$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $content = Get-Content $Path -Raw
     $sourceJson = ConvertFrom-Json $content
 
-    
     $sourceStatistics = [pscustomobject]@{
         'Sources' = $sourceJson.Count;
     }
 
     return $sourceStatistics
 }
-
 
 Function Get-ProviderStatistics() {
     <#
@@ -233,15 +230,15 @@ Function Get-ProviderStatistics() {
     [CmdletBinding()]
     [OutputType([pscustomobject])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to the JSON file that holds provider information')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to the JSON file that holds provider information')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*\.json$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $content = Get-Content $Path -Raw
     $providerJson = ConvertFrom-Json $content
-   
+
     $providerStatistics = [pscustomobject]@{
         'Providers' = $providerJson.Count;
     }
@@ -266,9 +263,9 @@ Function New-Statistics() {
     [CmdletBinding()]
     [OutputType([void])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to the JSON file that holds provider information')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to the JSON file that holds provider information')]
         [ValidateNotNullOrEmpty()]
-        [System.IO.DirectoryInfo]$Path     
+        [System.IO.DirectoryInfo]$Path
     )
 
     $file = 'classiclogs.json'

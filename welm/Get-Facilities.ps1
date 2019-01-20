@@ -1,5 +1,4 @@
-#requires -version 4
-Set-StrictMode -Version 4
+Set-StrictMode -Version Latest
 
 Function Get-ExplicitFacilities() {
     <#
@@ -13,7 +12,7 @@ Function Get-ExplicitFacilities() {
     The path to ntstatus.h.
 
     .EXAMPLE
-    Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h' 
+    Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h'
 
     .EXAMPLE
     (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name -Descending
@@ -22,21 +21,21 @@ Function Get-ExplicitFacilities() {
     (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').Count
 
     .EXAMPLE
-    (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Value 
+    (Get-ExplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Value
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to ntstatus.h')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to ntstatus.h')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*ntstatus\.h$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $content = Get-Content $Path -Raw
 
     $lines = $content -split [System.Environment]::NewLine
-    
+
     $facilities = @{}
 
     $lines | ForEach-Object {
@@ -50,7 +49,6 @@ Function Get-ExplicitFacilities() {
                 $facilities.Add($name, $value)
             }
         }
-
     }
 
     return $facilities
@@ -68,7 +66,7 @@ Function Get-NtStatusCodes() {
     The path to ntstatus.h.
 
     .EXAMPLE
-    Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h' 
+    Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h'
 
     .EXAMPLE
     (Get-NtStatusCodes -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').Count
@@ -79,16 +77,16 @@ Function Get-NtStatusCodes() {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to ntstatus.h')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to ntstatus.h')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*ntstatus\.h$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $content = Get-Content $Path -Raw
 
     $lines = $content -split [System.Environment]::NewLine
-    
+
     $codes = @{}
 
     $count = (@($lines | Where-Object { $_.Contains('#define STATUS_') })).Count
@@ -118,7 +116,6 @@ Function Get-NtStatusCodes() {
     return $codes
 }
 
-
 Function Get-Bits() {
     <#
     .SYNOPSIS
@@ -139,7 +136,7 @@ Function Get-Bits() {
     [CmdletBinding()]
     [OutputType([long])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The most significant bit number to start at, inclusive.')]
+        [Parameter(Mandatory=$true, HelpMessage='The most significant bit number to start at, inclusive.')]
         [ValidateNotNullOrEmpty()]
         [ValidateRange(0,31)]
         [int]$MostSignificantBit,
@@ -148,12 +145,12 @@ Function Get-Bits() {
         [ValidateNotNullOrEmpty()]
         [ValidateRange(0,31)]
         [int]$LeastSignificantBit,
-        
+
         [Parameter(Position=2, Mandatory=$true, HelpMessage='The number to take the bits from.')]
         [ValidateNotNullOrEmpty()]
-        [long]$Number                      
+        [long]$Number
     )
-    
+
     if ($MostSignificantBit -le $LeastSignificantBit) {
         throw 'Most significant bit must be greater than least significant bit'
     }
@@ -173,7 +170,7 @@ Function Get-ImplicitFacilities() {
     The path to ntstatus.h.
 
     .EXAMPLE
-    Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h' 
+    Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h'
 
     .EXAMPLE
     (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name -Descending
@@ -182,15 +179,15 @@ Function Get-ImplicitFacilities() {
     (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').Count
 
     .EXAMPLE
-    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name 
+    (Get-ImplicitFacilities -Path 'C:\Program Files (x86)\Windows Kits\10\Include\10.0.14393.0\shared\ntstatus.h').GetEnumerator() | Sort-Object -Property Name
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to ntstatus.h')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to ntstatus.h')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*ntstatus\.h$')]
-        [System.IO.FileInfo]$Path     
+        [System.IO.FileInfo]$Path
     )
 
     $facilities = @{}
@@ -235,11 +232,11 @@ Function Get-LoggedFacilities() {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     Param(
-        [Parameter(Position=0, Mandatory=$true, HelpMessage='The path to a WELM log file containing warning messages')]
+        [Parameter(Mandatory=$true, HelpMessage='The path to a WELM log file containing warning messages')]
         [ValidateNotNullOrEmpty()]
         [ValidatePattern('^.*_warn\.txt$')]
-        [System.IO.FileInfo]$Path,  
-        
+        [System.IO.FileInfo]$Path,
+
         [Parameter(Position=1, Mandatory=$true, HelpMessage='The type of facility')]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('Invalid','Undocumented', IgnoreCase=$true)]

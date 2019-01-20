@@ -44,8 +44,7 @@ Param(
     [string[]]$DnsServer
 )
 
-#requires -version 4
-Set-StrictMode -Version 4
+Set-StrictMode -Version Latest
 
 Import-Module CloneHyper-V -Force
 
@@ -144,7 +143,7 @@ Function Get-OperatingSystemArchitectureName() {
         using System.Runtime.InteropServices;
         using System;
 
-        namespace Kernel32 {                       
+        namespace Kernel32 {
 
             [StructLayout(LayoutKind.Explicit)]
             public struct PROCESSOR_INFO_UNION {
@@ -173,7 +172,7 @@ Function Get-OperatingSystemArchitectureName() {
             public class NativeMethods {
                 [DllImport("kernel32.dll")]
                 public static extern void GetNativeSystemInfo([MarshalAs(UnmanagedType.Struct)] ref SYSTEM_INFO lpSystemInfo);
-   
+
             }
         }
 '@
@@ -345,7 +344,7 @@ Function Get-OperatingSystemName() {
     $osName = $osName -replace "\(R\)","" -replace "\(TM\)","" # (R) is used on Windows XP X64
 
     # Windows Server 2003 R2 uses this to signify R2 versus non-R2
-    if($os.OtherTypeDescription -ne $null) {
+    if($null -ne $os.OtherTypeDescription) {
         $osName = ($osName,$os.OtherTypeDescription -join " ")
     }
 
@@ -366,7 +365,7 @@ Function Wait-VMShutdown() {
         [Parameter(Mandatory=$false, HelpMessage='The total maximum number of seconds to wait')]
         [int]$Total = 300
     )
-    
+
     $count = 0
 
     do {
@@ -377,7 +376,7 @@ Function Wait-VMShutdown() {
         }
 
         Start-Sleep -Seconds $Frequency
-        
+
         $service = Get-VM -Name $Name | Get-VMIntegrationService -Name 'VSS'
         $status = $service.PrimaryStatusDescription
         Write-Verbose -Message ('Waiting for VM to shutdown: {0} {1}' -f $count,$status)
@@ -399,7 +398,7 @@ Function Wait-VMStart() {
         [Parameter(Mandatory=$false, HelpMessage='The total maximum number of seconds to wait')]
         [int]$Total = 300
     )
-    
+
     $count = 0
     #$consecutive = 0
 
@@ -409,7 +408,7 @@ Function Wait-VMStart() {
         } else {
             $count++
         }
-        
+
         $service = Get-VM -Name $Name | Get-VMIntegrationService -Name 'VSS'
         $status = $service.PrimaryStatusDescription
 
@@ -475,9 +474,9 @@ Function Move-Mouse() {
         [int]$Total = 3600
     )
     Begin {
-        Add-Type -AssemblyName System.Windows.Forms 
+        Add-Type -AssemblyName System.Windows.Forms
     }
-    Process { 
+    Process {
         $count = 0
 
         while($true) {
@@ -494,7 +493,7 @@ Function Move-Mouse() {
             $count++
         }
     }
-    End {}      
+    End {}
 }
 
 Function Send-Keys() {
@@ -508,9 +507,9 @@ Function Send-Keys() {
         [int]$Total = 3600
     )
     Begin {
-        Add-Type -AssemblyName System.Windows.Forms 
+        Add-Type -AssemblyName System.Windows.Forms
     }
-    Process { 
+    Process {
 
         $count = 0
 
@@ -528,8 +527,8 @@ Function Send-Keys() {
     }
     End {
         # clear the command prompt of any characters sent
-        #[System.Windows.Forms.SendKeys]::SendWait('{ESC}')    
-    }      
+        #[System.Windows.Forms.SendKeys]::SendWait('{ESC}')
+    }
 }
 
 Function Invoke-Automation() {
@@ -577,7 +576,7 @@ Function Invoke-Automation() {
         [Parameter(Mandatory=$false, HelpMessage='DNS server address(es)')]
         [ValidateNotNullOrEmpty()]
         [string[]]$DnsServer,
-        
+
         [Parameter(Mandatory=$true, HelpMessage='VM credential')]
         [ValidateNotNullOrEmpty()]
         [System.Management.Automation.PSCredential]$Credential
@@ -604,27 +603,27 @@ Function Invoke-Automation() {
 
     $networkPrefix = $VMNetwork
     $prefixLength = $VMNetworkPrefixSize
-    $switchName = 'NAT_Switch_{0}' -f $networkPrefix   
+    $switchName = 'NAT_Switch_{0}' -f $networkPrefix
     $aliasName = 'vEthernet ({0})' -f $switchName # do not change this as Windows creates the name for you, this needs to match what Windows creates
     $natNetworkName = 'NAT_Network_{0}.0/{1}' -f $networkPrefix,$prefixLength
     $natGatewayAddress = '{0}.1' -f $networkPrefix
     $natNetwork = '{0}.0/{1}' -f $networkPrefix,$prefixLength
 
     if (@(Get-VMSwitch -Name $switchName -ErrorAction SilentlyContinue ).Count -eq 0) {
-        New-VMSwitch –SwitchName $switchName –SwitchType Internal 
+        New-VMSwitch -SwitchName $switchName -SwitchType Internal
         Write-Verbose -Message ('Created VM switch {0}' -f $switchName)
     }
 
     $hostInterfaceIndex = (Get-NetAdapter -Name $aliasName).ifIndex
 
-    if (@(Get-NetIPAddress –IPAddress $natGatewayAddress -InterfaceAlias $aliasName -InterfaceIndex $hostInterfaceIndex).Count -eq 0) {
-        New-NetIPAddress –IPAddress $natGatewayAddress -PrefixLength $prefixLength -InterfaceAlias $aliasName -InterfaceIndex $hostInterfaceIndex
+    if (@(Get-NetIPAddress -IPAddress $natGatewayAddress -InterfaceAlias $aliasName -InterfaceIndex $hostInterfaceIndex).Count -eq 0) {
+        New-NetIPAddress -IPAddress $natGatewayAddress -PrefixLength $prefixLength -InterfaceAlias $aliasName -InterfaceIndex $hostInterfaceIndex
         Write-Verbose -Message ('Created NAT gateway address {0}' -f $natGatewayAddress)
     }
 
     if (@(Get-NetNat -Name $natNetworkName -ErrorAction SilentlyContinue).Count -eq 0) {
         # you can only have 1 NAT network, so if you get an exception with error 87, then run Get-NetNat | Remove-NetNat
-        New-NetNat –Name $natNetworkName –InternalIPInterfaceAddressPrefix $natNetwork
+        New-NetNat -Name $natNetworkName -InternalIPInterfaceAddressPrefix $natNetwork
         Write-Verbose -Message ('Created NAT {0}' -f $natNetworkName)
     }
 
@@ -638,7 +637,7 @@ Function Invoke-Automation() {
 
     if (@(Get-VM -Name $vmTargetName -ErrorAction SilentlyContinue).Count -gt 0) {
         throw "$vmTargetName already exists"
-    } 
+    }
 
     New-VmClone -VMSourceName $vmSourceName -VmTargetName $vmTargetName -PathDirectoryVMStorage $vmDirectoryPath -PathDirectoryTemporaryData "$vmDirectoryPath\Temp" -RemoveTemporaryData -Verbose:$isVerbose
 
@@ -651,7 +650,7 @@ Function Invoke-Automation() {
 
     if (@(Get-VM -Name $vmTargetName).Count -gt 1) {
         throw "Multiple VMs with the same name of $vmTargetName exist"
-    } 
+    }
 
     Write-Verbose -Message ('Cloned {0} to {1}' -f $vmSourceName,$vmTargetName)
 
@@ -664,7 +663,7 @@ Function Invoke-Automation() {
     Start-VM -Name $vmTargetName -Verbose:$isVerbose
 
     Write-Verbose -Message 'Starting VM'
-    
+
     Wait-VMStart -Name $vmTargetName -Verbose:$isVerbose
 
     # Start-VM silently failed because the cloned VM had a path to an ISO file as its CD/DVD drive and the VM service did not have permission to access where it was stored
@@ -678,21 +677,21 @@ Function Invoke-Automation() {
 
     $session = New-PSSession -VMName $vmTargetName -Credential $Credential
 
-    if ($session -eq $null) {
+    if ($null -eq $session) {
         throw 'Unable to connect to VM. Ensure credentials are correct.'
     }
-    
+
     # update cloned VM's IP address to a new address to prevent an IP address conflict with the template VM
 
     $vmInterfaceIndex = Invoke-Command -Session $session -ScriptBlock { (Get-NetAdapter).ifIndex }
 
     $currentVMAddress = Invoke-Command -Session $session -ScriptBlock { (Get-NetIPAddress -InterfaceIndex $Using:vmInterfaceIndex).IPAddress }
 
-    Invoke-Command -Session $session -ScriptBlock { Remove-NetIPAddress –InterfaceIndex $Using:vmInterfaceIndex –IPAddress $Using:currentVMAddress -Confirm:$false }
+    Invoke-Command -Session $session -ScriptBlock { Remove-NetIPAddress ï¿½InterfaceIndex $Using:vmInterfaceIndex ï¿½IPAddress $Using:currentVMAddress -Confirm:$false }
 
     $newVMAddress = '{0}.{1}' -f $networkPrefix,(Get-Random -Minimum 20 -Maximum 250)
 
-    Invoke-Command -Session $session -ScriptBlock { New-NetIPAddress –InterfaceIndex $Using:vmInterfaceIndex –IPAddress $Using:newVMAddress -PrefixLength $Using:prefixLength }
+    Invoke-Command -Session $session -ScriptBlock { New-NetIPAddress ï¿½InterfaceIndex $Using:vmInterfaceIndex ï¿½IPAddress $Using:newVMAddress -PrefixLength $Using:prefixLength }
 
     $updatedVMAddress = Invoke-Command -Session $session -ScriptBlock { (Get-NetIPAddress -InterfaceIndex $Using:vmInterfaceIndex).IPAddress }
 
@@ -708,7 +707,7 @@ Function Invoke-Automation() {
 
     $gateway = $routes | Where-Object { $_.DestinationPrefix -eq '0.0.0.0/0' }
 
-    if ($gateway -eq $null) {
+    if ($null -eq $gateway) {
         Invoke-Command -Session $session -ScriptBlock { New-NetRoute -DestinationPrefix '0.0.0.0/0' -NextHop $Using:natGatewayAddress -InterfaceIndex $Using:vmInterfaceIndex }
     } else {
         if ($gateway.NextHop -ne $natGatewayAddress) {
@@ -722,15 +721,15 @@ Function Invoke-Automation() {
     if ($parameters.ContainsKey('DnsServer')) {
         #todo: check DNS servers first and only update if needed
 
-        Invoke-Command -Session $session -ScriptBlock { Set-DNSClientServerAddress –InterfaceIndex $Using:vmInterfaceIndex -ServerAddresses $using:DnsServer}
+        Invoke-Command -Session $session -ScriptBlock { Set-DNSClientServerAddress -InterfaceIndex $Using:vmInterfaceIndex -ServerAddresses $using:DnsServer}
 
-        $currentDnsServer = Invoke-Command -Session $session -ScriptBlock { Get-DNSClientServerAddress –InterfaceIndex $Using:vmInterfaceIndex}
+        $currentDnsServer = Invoke-Command -Session $session -ScriptBlock { Get-DNSClientServerAddress -InterfaceIndex $Using:vmInterfaceIndex}
 
         Write-Verbose -Message ('Set VM DNS address. {0}' -f ($currentDNSServer -join ','))
     }
 
     if($NoWindowsUpdate) {
-        Invoke-Command -Session $session -ScriptBlock { Set-ItemProperty -Path 'hklm:\Software\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update' -Name 'NoAutoUpdate' -Value 1 -Type 'DWORD' 
+        Invoke-Command -Session $session -ScriptBlock { Set-ItemProperty -Path 'hklm:\Software\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update' -Name 'NoAutoUpdate' -Value 1 -Type 'DWORD'
         Invoke-Command -Session $session -ScriptBlock { Set-ItemProperty -Path 'hklm:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU' -Name 'NoAutoUpdate' -Value 1 -Type 'DWORD' }}
     }
 
@@ -762,7 +761,7 @@ Function Invoke-Automation() {
         $results = Invoke-Command -Session $session -ScriptBlock { Invoke-InstallFeatures -Verbose:$Using:isVerbose }
 
         Write-Verbose -Message ('Installed features in VM at {0}. Needs reboot: {1} Needs more features installed: {2}' -f [System.DateTime]::Now,$results.NeedsReboot,$results.NeedsInstall)
-        
+
         # workaround transcript not capturing Invoke-InstallFeatures verbose output
         Write-Verbose -Message ('{0}{1}' -f [Environment]::NewLine,$results.Log)
 
@@ -788,7 +787,7 @@ Function Invoke-Automation() {
             }
 
             Write-Verbose -Message 'Started VM'
-        } 
+        }
 
         Get-PSSession | Remove-PSSession
 
@@ -804,11 +803,11 @@ Function Invoke-Automation() {
     $session = New-PSSession -VMName $vmTargetName -Credential $Credential
 
     #Invoke-Command -Session $session -ScriptBlock { Start-Process -FilePath 'cmd.exe' -ArgumentList '/c','C:\transfer\in\welm\welm.bat' -Wait }
-    
+
     Write-Verbose -Message ('Started WELM at {0}' -f [System.DateTime]::Now)
     Invoke-Command -Session $session -ScriptBlock { Start-Process -FilePath ('{0}\welm.bat' -f $Using:vmWelmPath) -WorkingDirectory $Using:vmWelmPath -Wait } # WorkingDirectory is critical, otherwise execution context for welm.exe (int .bat file) is at C:\users\user\Documents in the VM
     Write-Verbose -Message ('Finished WELM at {0}' -f [System.DateTime]::Now)
- 
+
     Stop-Job -Job $preventSleepJob
 
     Invoke-Command -Session $session -ScriptBlock { Remove-Item ('{0}\*.exe' -f $Using:vmWelmPath) }
@@ -838,7 +837,7 @@ Function Invoke-Automation() {
     $file = ('{0}_{1}_{2}_{3}_{4}_{5}.zip' -f $osName,$osRelease,$osEdition,$osArchName,$osVersion,$timestamp).ToLower()
 
     Invoke-Command -Session $session -ScriptBlock { Compress-Archive -Path ('{0}\*' -f $Using:vmWelmPath) -DestinationPath ('{0}\{1}' -f $Using:VMResultPath,$Using:file) }
-   
+
     Copy-Item -FromSession $session -Path ('{0}\{1}' -f $VMResultPath,$file) -Destination $HostResultPath -Force
 
     $filePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($file)
@@ -857,7 +856,7 @@ Function Invoke-Automation() {
         Remove-VM -Name $vmTargetName -Force
 
         # prompts in ISE
-        #Remove-Item -Path "$vmDirectoryPath\$vmTargetName" -Recurse -Confirm:$false -ErrorAction SilentlyContinue 
+        #Remove-Item -Path "$vmDirectoryPath\$vmTargetName" -Recurse -Confirm:$false -ErrorAction SilentlyContinue
 
         Get-ChildItem -Path "$vmDirectoryPath\$vmTargetName" -Recurse | Remove-Item -Recurse -Force -Confirm:$false
         Remove-Item -Path "$vmDirectoryPath\$vmTargetName" -Force -Confirm:$false
