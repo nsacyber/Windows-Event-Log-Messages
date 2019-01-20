@@ -169,7 +169,11 @@ Starting with Windows 10 1607, the [Automate-WELM.ps1](..\welm\Automate-WELM.ps1
 Create a template virtual machine that can be cloned by the script. The virtual machine should have Internet access OR a Windows installation DVD inserted into its virtual DVD drive. Run the following command on the host as an administrator:
 
 ```powershell
-powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1607 Enterprise x64" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1607 Enterprise x64" -HostCodePath "C:\users\user\Desktop" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" -DnsServer '123.45.67.890' -NoWindowsUpdate -Verbose
+powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1809 Enterprise x64" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" 
+```
+
+```powershell
+powershell.exe -File "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\Automate-WELM.ps1" -VMNetwork 172.16.0 -VMNetworkPrefixSize 24 -VMName "Windows 10 1809 Enterprise x64" -HostStagingPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\welm\dist" -HostResultPath "C:\Users\user\Documents\GitHub\Windows-Event-Log-Messages\docs\data" -VMStagingPath "C:\transfer\in" -VMResultPath "C:\transfer\out" -HostTranscriptPath "C:\users\user\Desktop" -DnsServer '8.8.8.8' -NoWindowsUpdate -Verbose
 ```
 
 ### Servers
