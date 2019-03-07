@@ -2,7 +2,7 @@
 
 The Windows Event Log Messages (WELM) tool retrieves the definitions of Windows Event Log messages embedded in binaries. The tool's output can be used to create an exhaustive list of event information for an operating system.
 
-The tool was initially developed to aid in writing the [Spotting the Adversary with Windows Event Log Monitoring](https://www.iad.gov/iad/library/ia-guidance/security-configuration/applications/spotting-the-adversary-with-windows-event-log-monitoring.cfm) paper but has proven useful in a number of scenarios:
+The tool was initially developed to aid in writing the [Spotting the Adversary with Windows Event Log Monitoring](https://apps.nsa.gov/iaarchive/library/ia-guidance/security-configuration/applications/spotting-the-adversary-with-windows-event-log-monitoring.cfm) paper but has proven useful in a number of scenarios:
 
 * Determining if there is an event that captures specific data of interest.
 * Diffing event changes between operating system releases.
